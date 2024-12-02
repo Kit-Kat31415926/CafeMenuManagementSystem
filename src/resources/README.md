@@ -1,6 +1,6 @@
 Café Online Order System Using Java GUI
 
-Application Name: FINCHAT Co. – Café Menu Management System
+Application Name: The Best Café Co. – Café Menu Management System
 
 Student Names (ID’s): Kaitlyn Chiu (016967652), Arianna Gonzalez (017157114)
 
