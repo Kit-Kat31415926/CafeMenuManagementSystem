@@ -15,5 +15,6 @@ public class LoginScreen extends JDialog {
         setSize(300, 300);
         setLocationRelativeTo(parent);
 
-	// xxx your codes
+        // xxx your codes
+    }
 }

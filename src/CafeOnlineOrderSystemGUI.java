@@ -9,7 +9,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame{
 	public CafeOnlineOrderSystemGUI() {
 
         // Set up the frame
-        setTitle("Pancake Diner Co.");
+        setTitle("FINCHAT Diner Co.");
         setSize(800, 450);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -17,4 +17,11 @@ public class CafeOnlineOrderSystemGUI extends JFrame{
 
    		// xxx your codes
 	}
+
+    /*
+     * Cafe Management System start
+     */
+    public static void main(String[] args) {
+        CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+    }
 }
