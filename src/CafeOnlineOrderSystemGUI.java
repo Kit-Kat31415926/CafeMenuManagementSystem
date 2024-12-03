@@ -8,50 +8,106 @@ import java.awt.event.ActionListener;
  * Create new Cafe Management System
  * @author - Kaitlyn Chiu
  */
-public class CafeOnlineOrderSystemGUI extends JFrame{
+public class CafeOnlineOrderSystemGUI extends JFrame {
+    private JButton loginButton;
+    private JButton signupButton;
+    private JButton exitButton;
+
+    private cafe cafedata = cafe.DB;
 
     /*
      * Create new instance of Cafe Management System
      * Display home page to user, where they can signup for an account, login, or exit the application
      */
-	public CafeOnlineOrderSystemGUI() throws Exception {
+	public CafeOnlineOrderSystemGUI() {
+        /*
+         * Creates action listener for button clicks
+         * User may sign up, log in, or exit
+         */
+        class ClickActionListener implements ActionListener {
+            public void actionPerformed(ActionEvent e) {
+                // Redirect to login screen
+                if (e.getSource() == loginButton) {
+                    LoginScreen loginScreen = new LoginScreen(CafeOnlineOrderSystemGUI.this, cafedata.getUsers());
+                // Redirect to signup screen
+                } else if (e.getSource() == signupButton) {
+                    SignupScreen signupScreen = new SignupScreen(CafeOnlineOrderSystemGUI.this, cafedata);
+                // Exit program
+                } else if (e.getSource() == exitButton) {
+                    System.exit(0);
+                } else {
+                    System.out.println("Error :(");
+                }
+            }
+        }
+
         setTitle("The Best Café Co.");
         // Set background image
         JLabel background = new JLabel(new ImageIcon("src/resources/background.jpg"));
         background.setLayout(new GridBagLayout());
         // Set up frame
         setSize(960, 600);
-        // setResizable(false);
+        setResizable(false);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
    		// Create screen components
         JPanel content = new JPanel();
-        content.add(new JLabel("Welcome to The Best Café Co.!"));
-        content.add(new JButton("Login"));
-        content.add(new Button("Signup"));
-        content.add(new Button("Exit"));
+        content.setOpaque(false);
+        content.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill =      GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 50, 50, 50);
+
+        // Create title
+        JLabel header = new JLabel();
+        header.setText("<html><center>Welcome to The<br />Best Café Co.!</center></html>");
+        header.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
+        content.add(header, gbc);
+
+        // Create buttons
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new GridBagLayout());
+        GridBagConstraints buttongbc = new GridBagConstraints();
+        buttongbc.gridwidth = GridBagConstraints.REMAINDER;
+        buttongbc.fill =      GridBagConstraints.HORIZONTAL;
+        buttongbc.insets = new Insets(0, -135, 10, -135);
+        buttons.setOpaque(false);
+
+        // TODO: Style login, exit, and signup buttons
+        loginButton = new JButton("Login");
+        loginButton.addActionListener(new ClickActionListener());
+        buttons.add(loginButton, buttongbc);
+
+        exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ClickActionListener());
+        buttons.add(exitButton, buttongbc);
+
+        content.add(buttons, gbc);
+
+        // Create signup
+        JLabel signupMessage = new JLabel("Don't have an account?");
+        gbc.insets = new Insets(10, 50, 0, 50);
+        content.add(signupMessage, gbc);
+
+        signupButton = new JButton("Signup");
+        signupButton.addActionListener(new ClickActionListener());
+        gbc.insets = new Insets(10, 50, 50, 50);
+        content.add(signupButton, gbc);
+
         add(content);
 
-        cafe cafedata = cafe.DB;
         background.add(content, new GridBagConstraints() );
         add(background);
 
         setVisible(true);
-
-        class ClickActionListener implements ActionListener {
-            public void actionPerformed(ActionEvent e) {
-                // Login, signup, and exit buttons
-                // new LoginScreen(this, cafedata.getUsers())
-            }
-        }
 	}
 
     /*
      * Cafe Management System start
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
     }
 }

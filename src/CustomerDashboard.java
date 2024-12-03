@@ -32,4 +32,17 @@ public class CustomerDashboard extends JFrame {
 	private JRadioButton twentyPercentButton;
 
    	// xxx your codes
+	public CustomerDashboard(JFrame parent, User currentUser) {
+		super("Customer Dashboard");
+		this.currentUser = currentUser;
+		UserManager userManager = new UserManager();
+
+		// xxx your codes
+		setSize(960, 600);
+		setResizable(false);
+		setLocationRelativeTo(parent);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+		setVisible(true);
+	}
 }

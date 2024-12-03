@@ -13,5 +13,11 @@ public class AdminDashboard extends JFrame {
         UserManager userManager = new UserManager(); 
 
    		// xxx your codes
+        setSize(960, 600);
+        setResizable(false);
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        setVisible(true);
 	}
 }
