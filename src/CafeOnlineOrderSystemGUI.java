@@ -63,7 +63,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
         // Create title
         JLabel header = new JLabel();
         header.setText("<html><center>Welcome to The<br />Best Café Co.!</center></html>");
-        header.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
+        header.setFont(new Font(Font.SERIF, Font.BOLD, 36));
         content.add(header, gbc);
 
         // Create buttons
