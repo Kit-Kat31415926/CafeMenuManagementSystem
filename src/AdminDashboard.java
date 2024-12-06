@@ -24,17 +24,17 @@ public class AdminDashboard extends JFrame {
 
 		//Create header
 		JLabel header = new JLabel("Welcome, " + admin.getFirstName() + "!");
-		header.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
+		header.setFont(new Font(Font.SERIF, Font.BOLD, 36));
 
 		// create and add listeners to each button
 		manageCustomers = new JButton("Manage Customers");
 		manageCustomers.addActionListener(new ClickActionListener());
 
 		manageMenu = new JButton("Manage Menu");
-		manageCustomers.addActionListener(new ClickActionListener());
+		manageMenu.addActionListener(new ClickActionListener());
 
 		customerLogin = new JButton("Login as Customer");
-		manageCustomers.addActionListener(new ClickActionListener());
+		customerLogin.addActionListener(new ClickActionListener());
 		
 		// TODO:fix layout, so the header is above
 		
