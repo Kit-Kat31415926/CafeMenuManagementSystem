@@ -72,7 +72,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
         GridBagConstraints buttongbc = new GridBagConstraints();
         buttongbc.gridwidth = GridBagConstraints.REMAINDER;
         buttongbc.fill =      GridBagConstraints.HORIZONTAL;
-        buttongbc.insets = new Insets(0, -135, 10, -135);
+        buttongbc.insets = new Insets(0, -120, 10, -120);
         buttons.setOpaque(false);
 
         // TODO: Style login, exit, and signup buttons

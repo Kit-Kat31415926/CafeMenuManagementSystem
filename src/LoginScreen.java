@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
+/*
+ * Creates login screen of user
+ * @author - Kaitlyn Chiu
+ */
 public class LoginScreen extends JDialog {
 	private Map<String, User> users;
 
@@ -50,7 +54,7 @@ public class LoginScreen extends JDialog {
                         JOptionPane.showMessageDialog(LoginScreen.this, "<Insert Error Here>", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         // TODO: Get User if sign up is successful
-                        User user = new Admin("", "", "", "", "", true);
+                        User user = new Customer("", "", "", "", "", true);
                         JOptionPane.showMessageDialog(LoginScreen.this, "Login successful! Welcome, " + user.getUserName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                         LoginScreen.this.dispose();
                         if (user.isAdmin()) {
