@@ -2,14 +2,13 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/*
+ * Creates dashboard for user to order items
+ * @author - Kaitlyn Chiu
+ */
 public class CustomerDashboard extends JFrame {
 
 	private UserManager userManager;
@@ -22,6 +21,10 @@ public class CustomerDashboard extends JFrame {
 	private StyledDocument cartDoc;
 	private StyledDocument billDoc;
 	private StyledDocument menuDoc;
+
+	private Style cartfont;
+
+	private ArrayList<MenuItem> itemsInCart;
 
 	private JCheckBox breakfastCheckbox;
 	private JCheckBox dinnerCheckbox;
@@ -48,20 +51,11 @@ public class CustomerDashboard extends JFrame {
 	private boolean selectedMenu = false;
 
 	// Create inner mouse-clicked class to highlight the text when clicking on JTextPane
-	class MouseClicked implements MouseListener {
+	class HighlightListener implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
-				// Reset style of all panes
-				Style cartnostyle = cartDoc.addStyle("nostyle", null);
-				Style menunostyle = menuDoc.addStyle("nostyle", null);
-				StyleConstants.setBackground(cartnostyle, Color.white);
-				StyleConstants.setBackground(menunostyle, Color.white);
-				StyledDocument cartStyledDoc = cartPane.getStyledDocument();
-				StyledDocument menuStyledDoc = menuPane.getStyledDocument();
-				cartDoc.setCharacterAttributes(0, cartStyledDoc.getLength(), cartnostyle, false);
-				menuDoc.setCharacterAttributes(0, menuStyledDoc.getLength(), menunostyle, false);
-
+				resetAllDocStyling();
 				// Highlight selected text
 				JTextPane styledPane = ((JTextPane) e.getSource());
 				StyledDocument styledDoc = styledPane.getStyledDocument();
@@ -81,7 +75,7 @@ public class CustomerDashboard extends JFrame {
 				styledDoc.setCharacterAttributes(cursorStart, cursorEnd - cursorStart, highlightstyle, false);
 				// Edge case: double click on menu item
 				if (selectedMenu && styledPane == menuPane && position >= currentCursorStart && position <= currentCursorEnd) {
-					MenuItem menuItem = menuManager.getItemByTitle(styledDoc.getText(currentCursorStart, currentCursorEnd - currentCursorStart));
+					MenuItem menuItem = menuManager.getItemByTitle(getSelectedItemTitle());
 					String menuDetails = "Title: " + menuItem.getTitle() + "\n" +
 							"Description: " + menuItem.getDescription() + "\n" +
 							"Item ID: " + menuItem.getItemID() + "\n" +
@@ -119,6 +113,40 @@ public class CustomerDashboard extends JFrame {
 		}
 	};
 
+	// Create inner button listener class to perform actions
+	class ButtonListener implements ActionListener	{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				if (e.getSource() == addToCartButton) {
+					StyledDocument styledDoc = menuPane.getStyledDocument();
+					MenuItem menuItem = menuManager.getItemByTitle(getSelectedItemTitle());
+					if (!selectedMenu || menuItem == null) {
+						JOptionPane.showMessageDialog(CustomerDashboard.this, "Cannot add to cart: No item selected.", "Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						addItemToCart(menuItem);
+					}
+				} else if (e.getSource() == orderButton) {
+					updateBill();
+				} else if (e.getSource() == cancelButton) {
+					StyledDocument styledDoc = cartPane.getStyledDocument();
+					MenuItem menuItem = menuManager.getItemByTitle(getSelectedItemTitle());
+					if (selectedMenu || menuItem == null) {
+						JOptionPane.showMessageDialog(CustomerDashboard.this, "Cannot remove from cart: No item selected.", "Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						cancelItem(menuItem);
+					}
+				} else if (e.getSource() == sortButton) {
+					sortMenu();
+				} else if (e.getSource() == searchButton) {
+					searchMenu();
+				}
+			} catch (Exception ex) {
+				System.out.println("Something went wrong: " + ex.getMessage());
+			}
+		}
+	}
+
 	public CustomerDashboard(JFrame parent, User currentUser) {
 		super("Customer Dashboard");
 		this.currentUser = currentUser;
@@ -155,19 +183,25 @@ public class CustomerDashboard extends JFrame {
 		shoppingPanel.add(new JLabel("Cart:"), shoppinggbc);
 		cartDoc = new DefaultStyledDocument();
 		cartPane = new JTextPane(cartDoc);
-		cartPane.addMouseListener(new MouseClicked());
+		cartPane.addMouseListener(new HighlightListener());
 		// Make cursor invisible
 		cartPane.setCaretColor(new Color(0,0,0,0));
 		// Set to uneditable
 		cartPane.setEditable(false);
+		cartPane.setHighlighter(null);
 		// Highlight line when clicked
-		cartPane.addMouseListener(new MouseClicked());
+		cartPane.addMouseListener(new HighlightListener());
 		cartPane.setPreferredSize(new Dimension(375,125));
+		itemsInCart = (ArrayList<MenuItem>) currentUser.getOrderedItems().stream().map(title -> menuManager.getItemByTitle(title)).collect(Collectors.toList());
         try {
-            cartDoc.insertString(0,"FOOD", null);
+            cartDoc.insertString(0, formatMenu(itemsInCart), null);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+		// Set font
+		cartfont = cartDoc.addStyle("font", null);
+		StyleConstants.setFontFamily(cartfont, Font.MONOSPACED);
+		cartDoc.setCharacterAttributes(0, cartDoc.getLength(), cartfont, false);
 
         shoppingPanel.add(cartPane, shoppinggbc);
 
@@ -175,12 +209,17 @@ public class CustomerDashboard extends JFrame {
 		shoppingPanel.add(new JLabel("Bill:"), shoppinggbc);
 		billDoc = new DefaultStyledDocument();
 		billPane = new JTextPane(billDoc);
-		billPane.addMouseListener(new MouseClicked());
+		billPane.addMouseListener(new HighlightListener());
 		// Make cursor invisible
 		billPane.setCaretColor(new Color(0,0,0,0));
 		// Set to uneditable
 		billPane.setEditable(false);
+		billPane.setHighlighter(null);
 		billPane.setPreferredSize(new Dimension(375,125));
+		// Set font
+		Style billfont = billDoc.addStyle("font", null);
+		StyleConstants.setFontFamily(billfont, Font.MONOSPACED);
+		billDoc.setCharacterAttributes(0, billDoc.getLength(), billfont, false);
 
 		shoppingPanel.add(billPane, shoppinggbc);
 
@@ -207,7 +246,9 @@ public class CustomerDashboard extends JFrame {
 		// Create order buttons
 		JPanel orderButtonPanel = new JPanel();
 		orderButton = new JButton("Order");
+		orderButton.addActionListener(new ButtonListener());
 		cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ButtonListener());
 		orderButtonPanel.add(orderButton);
 		orderButtonPanel.add(cancelButton);
 
@@ -233,25 +274,30 @@ public class CustomerDashboard extends JFrame {
 		menuPanel.add(new JLabel("Cafe Menu:"), menugbc);
 		menuDoc = new DefaultStyledDocument();
 		menuPane = new JTextPane(menuDoc);
-		menuPane.setHighlighter(null);
 		// Make cursor invisible
 		menuPane.setCaretColor(new Color(0,0,0,0));
 		// Set to uneditable
 		menuPane.setEditable(false);
+		menuPane.setHighlighter(null);
 		// Highlight line when clicked
-		menuPane.addMouseListener(new MouseClicked());
+		menuPane.addMouseListener(new HighlightListener());
 		menuPane.setPreferredSize(new Dimension(375,300));
 		// List all menu items in document
 		try {
-            menuDoc.insertString(0, menuManager.getMenu().stream().map(MenuItem::getTitle).collect(Collectors.joining("\n")), null);
+            menuDoc.insertString(0, formatMenu(menuManager.getMenu()), null);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+		// Set font
+		Style menufont = menuDoc.addStyle("font", null);
+		StyleConstants.setFontFamily(menufont, Font.MONOSPACED);
+		menuDoc.setCharacterAttributes(0, menuDoc.getLength(), menufont, false);
 
         menuPanel.add(menuPane, menugbc);
 
 		// Create add to cart button
 		addToCartButton = new JButton("Add to Cart");
+		addToCartButton.addActionListener(new ButtonListener());
 
 		menuPanel.add(Box.createRigidArea(new Dimension(10, 10)), menugbc);
 		menuPanel.add(addToCartButton, menugbc);
@@ -269,10 +315,12 @@ public class CustomerDashboard extends JFrame {
 		sortByChoice = new JComboBox<String>(new String[] {"Title", "Price"});
 
 		sortButton = new JButton("Sort");
+		sortButton.addActionListener(new ButtonListener());
 
 		searchInput = new JTextField();
 		searchInput.setPreferredSize(new Dimension(200, 25));
 		searchButton = new JButton("Search");
+		searchButton.addActionListener(new ButtonListener());
 
 		searchPanel.add(sortOrderLabel);
 		searchPanel.add(sortOrderChoice);
@@ -296,5 +344,72 @@ public class CustomerDashboard extends JFrame {
 		add(mainContentPanel);
 
 		setVisible(true);
+	}
+
+	/*
+	 * Resets styling of all documents
+	 */
+	public void resetAllDocStyling() {
+		Style cartnostyle = cartDoc.addStyle("nostyle", null);
+		Style menunostyle = menuDoc.addStyle("nostyle", null);
+		StyleConstants.setBackground(cartnostyle, Color.white);
+		StyleConstants.setBackground(menunostyle, Color.white);
+		cartDoc.setCharacterAttributes(0, cartDoc.getLength(), cartnostyle, false);
+		menuDoc.setCharacterAttributes(0, menuDoc.getLength(), menunostyle, false);
+	}
+
+	/*
+	 * Formats ArrayList of menu items
+	 * @param menuItems - items to be formatted
+	 */
+	public String formatMenu(ArrayList<MenuItem> menuItems) {
+		return menuItems.stream()
+				.map((item) -> item.getTitle() + " ".repeat(50 - item.getTitle().length() - String.format("%.2f", item.getPrice()).length()) + "$" + String.format("%.2f", item.getPrice()))
+				.collect(Collectors.joining("\n"));
+	}
+
+	public String getSelectedItemTitle() {
+		try {
+			String line = null;
+			if (selectedMenu) {
+				line = menuDoc.getText(currentCursorStart, currentCursorEnd - currentCursorStart);
+			} else {
+				line = cartDoc.getText(currentCursorStart, currentCursorEnd - currentCursorStart);
+			}
+			return line.substring(0, line.indexOf("  "));
+		} catch (BadLocationException ex) {
+			System.out.println("Could not get title of selected item");
+		}
+		return null;
+	}
+
+	/*
+	 * Adds given item to cart
+	 * @param menuItem - item to be added
+	 */
+	public void addItemToCart(MenuItem menuItem) {
+		itemsInCart.add(menuItem);
+        try {
+			cartDoc.remove(0, cartDoc.getLength());
+            cartDoc.insertString(0, formatMenu(itemsInCart), cartfont);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	public void updateBill() {
+
+	}
+
+	public void cancelItem(MenuItem item) {
+
+	}
+
+	public void sortMenu() {
+
+	}
+
+	public void searchMenu() {
+
 	}
 }
