@@ -12,5 +12,9 @@ import java.util.HashMap;
 
 public class MenuManagementScreen extends JFrame {
 
+	public MenuManagementScreen(AdminDashboard adminDashboard, User admin) {
+		// TODO Auto-generated constructor stub
+	}
+
    		// xxx your codes
 }
