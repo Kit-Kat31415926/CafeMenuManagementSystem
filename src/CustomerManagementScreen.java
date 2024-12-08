@@ -29,6 +29,11 @@ public class CustomerManagementScreen extends JFrame {
 		super("Customer Management Dashboard");
 		this.currentUser = user;
 		this.parent = parent;
+		this.userManager = new UserManager();
+		this.activeCustomersPane = new JTextPane();
+		this.activeUsersDoc = activeCustomersPane.getStyledDocument();
+		this.inactiveCustomersPane = new JTextPane();
+		this.inactiveUsersDoc = inactiveCustomersPane.getStyledDocument();
 
 		setSize(960, 600);
 		setResizable(false);
@@ -54,7 +59,21 @@ public class CustomerManagementScreen extends JFrame {
 		activeLabel.setFont(new Font(Font.SERIF, Font.BOLD, 24));
 		
 		// create and write customers to panes
-		sortActiveInactive(loadCustomers("cafeData.txt"));
+		for(Customer c: userManager.getActiveCustomers()) {
+			try {
+				activeUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
+			} catch (BadLocationException e) {
+				
+			}
+		}
+		
+		for(Customer c: userManager.getInactiveCustomers()) {
+			try {
+				inactiveUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
+			} catch (BadLocationException e) {
+				
+			}
+		}
 		
 		// create activate and reactivateButtons
 		// TODO: add clickListeners
@@ -83,70 +102,6 @@ public class CustomerManagementScreen extends JFrame {
 
 		setVisible(true);
 	}
-	
-	private void sortActiveInactive(ArrayList<Customer> customers) {
-		activeCustomersPane = new JTextPane();
-		activeUsersDoc = activeCustomersPane.getStyledDocument();
-		inactiveCustomersPane = new JTextPane();
-		inactiveUsersDoc = inactiveCustomersPane.getStyledDocument();
-		
-		for (Customer c : customers) {
-			if (c.isActive()) {
-				try {
-					activeUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
-				} catch (BadLocationException e) {
-					
-				}
-			} else {
-				try {
-					inactiveUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
-				} catch (BadLocationException e) {
-					
-				}
-			}
-		}
-	}
-	
-	private ArrayList<Customer> loadCustomers(String filename) {
-		ArrayList<Customer> customers = new ArrayList<Customer>();
-		
-		try {
-			File file = new File(filename);
-			Scanner scnr = new Scanner(file);
-
-			// scans until it reaches the user data
-			while (scnr.hasNextLine()) {
-				if (scnr.nextLine().trim().equals("Users:")) {
-					break;
-				}
-			}
-			
-			// scans each line to create customer objects
-			while (scnr.hasNextLine()) {   
-				String temp = scnr.nextLine();
-				if (temp.trim().length() > 0 ) {  
-					String[] customerDetails = temp.split(";");
-					if (customerDetails[0].equals("Customer")) { // create a customer, don't need admins
-						Customer newCustomer = new Customer(customerDetails[1], customerDetails[2], customerDetails[3], 
-															customerDetails[4], customerDetails[5], customerDetails[6].equals("true"));
-						if(customerDetails.length > 6) { // if there are ordered items 
-							ArrayList<String> order = new ArrayList<String>();
-							for (int i = 7; i < customerDetails.length; i++) {
-								order.add(customerDetails[i]);
-							}
-							newCustomer.setOrderedItems(order);
-						}
-						customers.add(newCustomer);
-					} 
-				}
-			}
-			scnr.close();
-		} catch (IOException ex ) {
-			System.out.println(ex.getMessage());
-		}
-		return customers;
-	}
-	
 
 	class ClickActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
