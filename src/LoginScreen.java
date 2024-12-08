@@ -59,7 +59,6 @@ public class LoginScreen extends JDialog {
 							JOptionPane.showMessageDialog(LoginScreen.this, "Incorrect password. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
 						}
 					} else {
-						// TODO: Get User if sign up is successful
 						User user = userManager.getUser(usernameInput.getText());
 						JOptionPane.showMessageDialog(LoginScreen.this, "Login successful! Welcome, " + user.getUserName(), "Success", JOptionPane.INFORMATION_MESSAGE);
 						LoginScreen.this.dispose();
