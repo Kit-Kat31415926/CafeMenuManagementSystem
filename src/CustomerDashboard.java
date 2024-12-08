@@ -54,7 +54,11 @@ public class CustomerDashboard extends JFrame {
     private int currentCursorEnd;
     private boolean selectedMenu = false;
 
-    // Create inner mouse-clicked class to highlight the text when clicking on JTextPane
+    private final float TAX_PERCENT = 0.08f;
+
+    /*
+     * Create inner mouse-clicked class to highlight the text when clicking on JTextPane
+     */
     class HighlightListener implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -119,7 +123,9 @@ public class CustomerDashboard extends JFrame {
 
     ;
 
-    // Create inner button listener class to perform actions
+    /*
+     * Create inner button listener class to perform actions
+     */
     class ButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -143,6 +149,9 @@ public class CustomerDashboard extends JFrame {
         }
     }
 
+    /*
+     * Create new customer dashboard
+     */
     public CustomerDashboard(JFrame parent, User currentUser) {
         super("Customer Dashboard");
         this.currentUser = currentUser;
@@ -363,6 +372,7 @@ public class CustomerDashboard extends JFrame {
     /*
      * Formats ArrayList of menu items
      * @param menuItems - items to be formatted
+     * @return String - formatted menu
      */
     public String formatMenu(ArrayList<MenuItem> menuItems) {
         return menuItems.stream()
@@ -372,6 +382,10 @@ public class CustomerDashboard extends JFrame {
                 .collect(Collectors.joining("\n"));
     }
 
+    /*
+     * Gets selected item's title
+     * @return String - title of item selected/highlighted by user
+     */
     public String getSelectedItemTitle() {
         try {
             String line = null;
@@ -436,27 +450,51 @@ public class CustomerDashboard extends JFrame {
         }
     }
 
+    /*
+     * Updates bill with items in cart
+     * Displays tax, tip, and totals
+     */
     public void updateBill() {
         // Update user's items ordered
         currentUser.setOrderedItems(itemsInCart.stream().map(MenuItem::getTitle).collect(Collectors.toList()));
         // Update bill and set right align with spacing
         String bill = itemsInCart.stream()
-                .map(item -> " ".repeat(64 - item.getTitle().length() - String.format("%.2f", item.getPrice()).length()) +
-                        (((int) item.getPrice()) / 10 == 0 ? "" : " ") +
+                .map(item -> " ".repeat(62 - item.getTitle().length() - String.format("%.2f", item.getPrice()).length()) +
+                        (((int) item.getPrice()) / 10 == 0 ? " " : "  ") +
                         item.getTitle() +
                         ": " +
-                        (((int) item.getPrice()) / 10 == 0 ? " " : "") +
+                        (((int) item.getPrice()) / 10 == 0 ? "  " : " ") +
                         "$" +
                         String.format("%.2f", item.getPrice()))
                 .collect(Collectors.joining("\n"));
+        float subtotal = itemsInCart.stream().map(MenuItem::getPrice).reduce(0f, Float::sum);
+        float tax = subtotal * TAX_PERCENT;
+        ButtonModel tipButton = tipGroup.getSelection();
+        float tipPercect = (float) (tipButton == noTipButton ? 0 : (tipButton == tenPercentButton ? 0.1 : (tipButton == fifteenPercentButton ? 0.15 : 0.2)));
+        float tip = subtotal * tipPercect;
+        bill += "\nSubtotal: $" + String.format("%.2f", subtotal) +
+                "\nTax: $" + String.format("%.2f", tax) +
+                "\nTip: $" + String.format("%.2f", tip) +
+                "\nTotal: $" + String.format("%.2f", subtotal + tax + tip);
         try {
             billDoc.remove(0, billDoc.getLength());
             billDoc.insertString(0, bill, billfont);
+
+            Style right = billDoc.addStyle("right", null);
+            StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
+            billDoc.setParagraphAttributes(0, billDoc.getLength(), right, false);
+
+            Style bold = billDoc.addStyle("bold", null);
+            StyleConstants.setBold(bold, true);
+            billDoc.setCharacterAttributes(billDoc.getText(0, billDoc.getLength()).lastIndexOf("\n"), billDoc.getLength(), bold, false);
         } catch (BadLocationException ex) {
             throw new RuntimeException(ex);
         }
     }
 
+    /*
+     * Sorts menu using user options
+     */
     public void sortMenu() {
         try {
             menuDoc.remove(0, menuDoc.getLength());

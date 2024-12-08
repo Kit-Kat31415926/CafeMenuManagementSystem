@@ -1,10 +1,18 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+/*
+ * Manages and sorts menu
+ * @author - Kaitlyn Chiu
+ */
 public class MenuManager {
     private ArrayList<MenuItem> menuItems;
 
+    /*
+     * Creates new Menu Manager
+     */
     public MenuManager() {
         // Loads all menu items
         menuItems = new ArrayList<MenuItem>();
@@ -37,6 +45,7 @@ public class MenuManager {
                 }
             }
             scan.close();
+            menuItems = (ArrayList<MenuItem>) menuItems.stream().filter(MenuItem::isAvailable).collect(Collectors.toList());
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -44,6 +53,7 @@ public class MenuManager {
 
     /*
      * Gets all menu items
+     * @return ArrayList - all menu items available
      */
     public ArrayList<MenuItem> getMenu() {
         return menuItems;
@@ -51,6 +61,8 @@ public class MenuManager {
 
     /*
      * Gets MenuItem by title
+     * @param title - String representation of item title
+     * @return MenuItem - item with given title
      */
     public MenuItem getItemByTitle(String title) {
         title = title.trim();
@@ -62,6 +74,15 @@ public class MenuManager {
         return null;
     }
 
+    /*
+     * Returns string of updated menu
+     * @param breakfast - true if items on pancake menu should be displayed
+     * @param dinner - true if items on diner menu should be displayed
+     * @param sortOrder - whether to sort ascending or descending
+     * @param sortBy - whether to sort by title or price
+     * @param regex - regex to match with
+     * @return ArrayList - list of all matching items on menu
+     */
     public ArrayList<MenuItem> updateMenu(boolean breakfast, boolean dinner, Object sortOrder, Object sortBy, String regex) {
         ArrayList<MenuItem> updatedMenuItems = new ArrayList<MenuItem>();
         // Add all breakfast and dinner items
