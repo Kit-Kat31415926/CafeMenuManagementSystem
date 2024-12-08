@@ -134,25 +134,11 @@ public class CustomerDashboard extends JFrame {
                     updateBill();
                 } else if (e.getSource() == cancelButton) {
                     cancelItem();
-                } else if (e.getSource() == sortButton) {
+                } else if (e.getSource() == sortButton || e.getSource() == searchButton || e.getSource() == dinnerCheckbox || e.getSource() == breakfastCheckbox) {
                     sortMenu();
-                } else if (e.getSource() == searchButton) {
-                    searchMenu();
                 }
             } catch (Exception ex) {
                 System.out.println("Something went wrong: " + ex.getMessage());
-            }
-        }
-    }
-
-    class OptionsListener implements ChangeListener {
-        @Override
-        public void stateChanged(ChangeEvent e) {
-            try {
-                menuDoc.remove(0, menuDoc.getLength());
-                menuDoc.insertString(0, formatMenu(menuManager.updateMenu(breakfastCheckbox.isSelected(), dinnerCheckbox.isSelected(), sortOrderChoice.getSelectedItem(), sortByChoice.getSelectedItem(), searchInput.getText())), menufont);
-            } catch (BadLocationException ex) {
-                throw new RuntimeException(ex);
             }
         }
     }
@@ -184,8 +170,10 @@ public class CustomerDashboard extends JFrame {
         JPanel mealTypePanel = new JPanel();
         breakfastCheckbox = new JCheckBox("Breakfast");
         breakfastCheckbox.setSelected(true);
+        breakfastCheckbox.addActionListener(new ButtonListener());
         dinnerCheckbox = new JCheckBox("Dinner");
         dinnerCheckbox.setSelected(true);
+        dinnerCheckbox.addActionListener(new ButtonListener());
         mealTypePanel.add(breakfastCheckbox);
         mealTypePanel.add(dinnerCheckbox);
 
@@ -470,10 +458,11 @@ public class CustomerDashboard extends JFrame {
     }
 
     public void sortMenu() {
-
-    }
-
-    public void searchMenu() {
-
+        try {
+            menuDoc.remove(0, menuDoc.getLength());
+            menuDoc.insertString(0, formatMenu(menuManager.updateMenu(breakfastCheckbox.isSelected(), dinnerCheckbox.isSelected(), sortOrderChoice.getSelectedItem(), sortByChoice.getSelectedItem(), searchInput.getText())), menufont);
+        } catch (BadLocationException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

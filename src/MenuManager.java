@@ -66,7 +66,7 @@ public class MenuManager {
         ArrayList<MenuItem> updatedMenuItems = new ArrayList<MenuItem>();
         // Add all breakfast and dinner items
         for (MenuItem item : menuItems) {
-            if (breakfast && item.getMenuType().equals("Breakfast")) {
+            if (breakfast && item.getMenuType().equals("Pancake")) {
                 updatedMenuItems.add(item);
             }
             if (dinner && item.getMenuType().equals("Diner")) {
@@ -74,17 +74,19 @@ public class MenuManager {
             }
         }
         // Remove based on regex
-        for (int i = 0; i < updatedMenuItems.size(); i++) {
-            if (!updatedMenuItems.get(i).getTitle().matches(regex)) {
-                updatedMenuItems.remove(i);
-                i--;
+        if (!regex.equals("")) {
+            for (int i = 0; i < updatedMenuItems.size(); i++) {
+                if (!updatedMenuItems.get(i).getTitle().matches(".*" + regex + ".*")) {
+                    updatedMenuItems.remove(i);
+                    i--;
+                }
             }
         }
         // Sort by chosen order
         if (!((String) sortBy).isEmpty() && !((String) sortOrder).isEmpty()) {
-            if (sortBy.equals("Title")) {
-                updatedMenuItems.sort(null);
-            }
+            MenuItem.setAscending(sortOrder.equals("Ascending"));
+            MenuItem.setSortBy((String) sortBy);
+            updatedMenuItems.sort(null);
         }
         return updatedMenuItems;
     }

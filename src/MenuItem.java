@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,6 +11,9 @@ public abstract class MenuItem implements Comparable<MenuItem>, Serializable {
     private int count;
     private boolean available;
     private boolean current;
+
+    private static boolean ascending;
+    private static String sortBy;
 
     private ArrayList<MenuItem> menuItems = new ArrayList<>(); // Store menu items
 
@@ -86,9 +90,29 @@ public abstract class MenuItem implements Comparable<MenuItem>, Serializable {
 
     public abstract String getMenuType();
 
-    public int compareTo(MenuItem o) {
-        return this.getTitle().compareTo(o.getTitle());
+    public static void setAscending(boolean ascending) {
+        MenuItem.ascending = ascending;
     }
 
+    public static void setSortBy(String sortBy) {
+        MenuItem.sortBy = sortBy;
+    }
+
+    public int compareTo(MenuItem o) {
+        if (sortBy.equals("Title")) {
+            if (ascending) {
+                return this.getTitle().compareTo(o.getTitle());
+            } else {
+                return  - this.getTitle().compareTo(o.getTitle());
+            }
+        } else if (sortBy.equals("Price")) {
+            if (ascending) {
+                return (int) (this.getPrice() - o.getPrice());
+            } else {
+                return (int) (o.getPrice() - this.getPrice());
+            }
+        }
+        return 0;
+    }
 }
 	
