@@ -16,6 +16,14 @@ public class DinerMenuItem implements MenuItem, Serializable  {
     
     private ArrayList<MenuItem> menuItems = new ArrayList<>(); // Store menu items
 
+    public DinerMenuItem(String title, String itemID, String description, float price, int count, boolean current) {
+        this.title = title;
+        this.itemID = itemID;
+        this.description = description;
+        this.price = price;
+        this.count = count;
+        this.current = current;
+    }
 
     // xxx your codes
     @Override

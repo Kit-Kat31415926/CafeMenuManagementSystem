@@ -43,7 +43,7 @@ public class AdminDashboard extends JFrame {
 		contentPanel.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.fill = GridBagConstraints.VERTICAL;
 		gbc.insets = new Insets(10, -150, 50, -150);
 
 
@@ -76,7 +76,7 @@ public class AdminDashboard extends JFrame {
 				MenuManagementScreen menuManagement = new MenuManagementScreen();
 				// redirect to customer dashboard
 			} else if (e.getSource() == customerLoginButton) {
-				CustomerDashboard customerDashboard = new CustomerDashboard(AdminDashboard.this, admin); 
+				CustomerDashboard customerDashboard = new CustomerDashboard(AdminDashboard.this, admin);
 			} else {
 				System.out.println("Error :(");
 			}
