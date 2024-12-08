@@ -97,4 +97,13 @@ public class UserManager {
 		}
 		return null;
 	}
+	
+	public User getUserFromName(String name) {
+		for (User u: users) {
+			if (name.contains(u.getFirstName()) && name.contains(u.getLastName())) {
+				return u;
+			}
+		}
+		return null;
+	}
 }
