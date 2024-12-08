@@ -32,31 +32,54 @@ public class CustomerDashboard extends JFrame {
 	private JRadioButton fifteenPercentButton;
 	private JRadioButton twentyPercentButton;
 
-	// Create inner mouse clicked class to highlight the text
+	private JButton orderButton;
+	private JButton cancelButton;
+	private JButton addToCartButton;
+
+	private JComboBox<String> sortOrderChoice;
+	private JComboBox<String> sortByChoice;
+	private JButton sortButton;
+	private JTextField searchInput;
+	private JButton searchButton;
+
+	private int currentCursorStart;
+	private int currentCursorEnd;
+
+	// Create inner mouse-clicked class to highlight the text when clicking on JTextPane
 	class MouseClicked implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
-				StyledDocument styledDoc = menuPane.getStyledDocument();
-				// Reset style
-				Style nostyle = menuDoc.addStyle("nostyle", null);
-				StyleConstants.setBackground(nostyle, Color.white);
-				menuDoc.setCharacterAttributes(0, styledDoc.getLength(), nostyle, false);
+				// Reset style of all panes
+				Style billnostyle = billDoc.addStyle("nostyle", null);
+				Style cartnostyle = cartDoc.addStyle("nostyle", null);
+				Style menunostyle = menuDoc.addStyle("nostyle", null);
+				StyleConstants.setBackground(billnostyle, Color.white);
+				StyleConstants.setBackground(cartnostyle, Color.white);
+				StyleConstants.setBackground(menunostyle, Color.white);
+				StyledDocument cartStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
+				StyledDocument billStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
+				StyledDocument menuStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
+				cartDoc.setCharacterAttributes(0, cartStyledDoc.getLength(), billnostyle, false);
+				billDoc.setCharacterAttributes(0, billStyledDoc.getLength(), cartnostyle, false);
+				menuDoc.setCharacterAttributes(0, menuStyledDoc.getLength(), menunostyle, false);
 
+				JTextPane styledPane = ((JTextPane) e.getSource());
+				StyledDocument styledDoc = styledPane.getStyledDocument();
 				// Color newly clicked menu item
-				int position = menuPane.getCaretPosition();
-				int startPos = styledDoc.getText(0, styledDoc.getLength()).lastIndexOf("\n", position);
-				if (startPos == -1) {
-					startPos = 0;
+				int position = styledPane.getCaretPosition();
+				currentCursorStart = styledDoc.getText(0, styledDoc.getLength()).lastIndexOf("\n", position);
+				if (currentCursorStart == -1) {
+					currentCursorStart = 0;
 				}
-				int endPos = styledDoc.getText(0, styledDoc.getLength()).indexOf("\n", position);
-				if (endPos == -1) {
-					endPos = styledDoc.getLength();
+				currentCursorEnd = styledDoc.getText(0, styledDoc.getLength()).indexOf("\n", position);
+				if (currentCursorEnd == -1) {
+					currentCursorEnd = styledDoc.getLength();
 				}
-				Style teststyle = menuDoc.addStyle("stylename", null);
+				Style teststyle = styledDoc.addStyle("stylename", null);
 				StyleConstants.setBackground(teststyle, Color.PINK);
 				// Set style
-				menuDoc.setCharacterAttributes(startPos, endPos - startPos, teststyle, false);
+				styledDoc.setCharacterAttributes(currentCursorStart, currentCursorEnd - currentCursorStart, teststyle, false);
 			} catch (BadLocationException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -105,7 +128,7 @@ public class CustomerDashboard extends JFrame {
 		GridBagConstraints shoppinggbc = new GridBagConstraints();
 		shoppinggbc.gridwidth = GridBagConstraints.REMAINDER;
 		shoppinggbc.fill =      GridBagConstraints.VERTICAL;
-		shoppinggbc.insets = new Insets(10, 0, 10, 0);
+		shoppinggbc.insets = new Insets(0, 0, 0, 0);
 
 		// Create meal checkboxes
 		JPanel mealTypePanel = new JPanel();
@@ -127,8 +150,14 @@ public class CustomerDashboard extends JFrame {
 		cartPane.setEditable(false);
 		// Highlight line when clicked
 		cartPane.addMouseListener(new MouseClicked());
+		cartPane.setPreferredSize(new Dimension(375,125));
+        try {
+            cartDoc.insertString(0,"FOOD", null);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
 
-		shoppingPanel.add(cartPane, shoppinggbc);
+        shoppingPanel.add(cartPane, shoppinggbc);
 
 		// Create bill
 		shoppingPanel.add(new JLabel("Bill:"), shoppinggbc);
@@ -141,6 +170,7 @@ public class CustomerDashboard extends JFrame {
 		billPane.setEditable(false);
 		// Highlight line when clicked
 		billPane.addMouseListener(new MouseClicked());
+		billPane.setPreferredSize(new Dimension(375,125));
 
 		shoppingPanel.add(billPane, shoppinggbc);
 
@@ -164,12 +194,31 @@ public class CustomerDashboard extends JFrame {
 
 		shoppingPanel.add(tipPanel, shoppinggbc);
 
+		// Create order buttons
+		JPanel orderButtonPanel = new JPanel();
+		orderButton = new JButton("Order");
+		cancelButton = new JButton("Cancel");
+		orderButtonPanel.add(orderButton);
+		orderButtonPanel.add(cancelButton);
+
+		shoppingPanel.add(orderButtonPanel, shoppinggbc);
+
 		// Create panel for showing all menu items
 		JPanel menuPanel = new JPanel();
 		menuPanel.setLayout(new GridBagLayout());
 		GridBagConstraints menugbc = new GridBagConstraints();
 		menugbc.fill = GridBagConstraints.VERTICAL;
 		menugbc.gridwidth = GridBagConstraints.REMAINDER;
+		menugbc.insets = new Insets(0, 0, 0, 0);
+
+		// Create logout button
+		JPanel logoutPanel = new JPanel();
+		logoutPanel.add(new JLabel(currentUser.getFirstName() + " " + currentUser.getLastName() + ":" + currentUser.getUserName()));
+		logoutPanel.add(new JButton("Logout") {{
+			addActionListener(e -> CustomerDashboard.this.dispose());
+		}});
+
+		menuPanel.add(logoutPanel, menugbc);
 
 		menuPanel.add(new JLabel("Cafe Menu:"), menugbc);
 		menuDoc = new DefaultStyledDocument();
@@ -180,7 +229,7 @@ public class CustomerDashboard extends JFrame {
 		menuPane.setEditable(false);
 		// Highlight line when clicked
 		menuPane.addMouseListener(new MouseClicked());
-		menuPane.setPreferredSize(new Dimension(200,200));
+		menuPane.setPreferredSize(new Dimension(375,300));
 		// List all menu items in document
 		try {
             menuDoc.insertString(0, loadMenuItems().stream().map(MenuItem::getTitle).collect(Collectors.joining("\n")), null);
@@ -190,8 +239,37 @@ public class CustomerDashboard extends JFrame {
 
         menuPanel.add(menuPane, menugbc);
 
+		// Create add to cart button
+		addToCartButton = new JButton("Add to Cart");
+
+		menuPanel.add(Box.createRigidArea(new Dimension(10, 10)), menugbc);
+		menuPanel.add(addToCartButton, menugbc);
+
 		docPanel.add(shoppingPanel);
 		docPanel.add(menuPanel);
+
+		// Create sort and search options
+		JPanel searchPanel = new JPanel();
+
+		JLabel sortOrderLabel = new JLabel("Sort Order: ");
+		sortOrderChoice = new JComboBox<String>(new String[] {"Ascending", "Descending"});
+
+		JLabel sortByLabel = new JLabel("Search/Sort By: ");
+		sortByChoice = new JComboBox<String>(new String[] {"Title", "Price"});
+
+		sortButton = new JButton("Sort");
+
+		searchInput = new JTextField();
+		searchInput.setPreferredSize(new Dimension(200, 25));
+		searchButton = new JButton("Search");
+
+		searchPanel.add(sortOrderLabel);
+		searchPanel.add(sortOrderChoice);
+		searchPanel.add(sortByLabel);
+		searchPanel.add(sortByChoice);
+		searchPanel.add(sortButton);
+		searchPanel.add(searchInput);
+		searchPanel.add(searchButton);
 
 		// Set layout of main panel
 		JPanel mainContentPanel = new JPanel();
@@ -199,10 +277,10 @@ public class CustomerDashboard extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.fill =      GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(10, -100, 10, -100);
+		gbc.insets = new Insets(0,0,0,0);
 
-		mainContentPanel.add(mealTypePanel, gbc);
 		mainContentPanel.add(docPanel, gbc);
+		mainContentPanel.add(searchPanel, gbc);
 
 		add(mainContentPanel);
 
