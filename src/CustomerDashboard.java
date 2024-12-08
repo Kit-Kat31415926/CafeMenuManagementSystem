@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -139,6 +141,18 @@ public class CustomerDashboard extends JFrame {
                 }
             } catch (Exception ex) {
                 System.out.println("Something went wrong: " + ex.getMessage());
+            }
+        }
+    }
+
+    class OptionsListener implements ChangeListener {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            try {
+                menuDoc.remove(0, menuDoc.getLength());
+                menuDoc.insertString(0, formatMenu(menuManager.updateMenu(breakfastCheckbox.isSelected(), dinnerCheckbox.isSelected(), sortOrderChoice.getSelectedItem(), sortByChoice.getSelectedItem(), searchInput.getText())), menufont);
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -309,10 +323,10 @@ public class CustomerDashboard extends JFrame {
         JPanel searchPanel = new JPanel();
 
         JLabel sortOrderLabel = new JLabel("Sort Order: ");
-        sortOrderChoice = new JComboBox<String>(new String[]{"Ascending", "Descending"});
+        sortOrderChoice = new JComboBox<String>(new String[]{"", "Ascending", "Descending"});
 
         JLabel sortByLabel = new JLabel("Search/Sort By: ");
-        sortByChoice = new JComboBox<String>(new String[]{"Title", "Price"});
+        sortByChoice = new JComboBox<String>(new String[]{"", "Title", "Price"});
 
         sortButton = new JButton("Sort");
         sortButton.addActionListener(new ButtonListener());
@@ -380,9 +394,8 @@ public class CustomerDashboard extends JFrame {
             }
             return line.substring(0, line.indexOf("  "));
         } catch (BadLocationException ex) {
-            System.out.println("Could not get title of selected item");
+            throw new RuntimeException(ex);
         }
-        return null;
     }
 
     /*

@@ -1,9 +1,6 @@
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.*;
 
 public class MenuManager {
     private ArrayList<MenuItem> menuItems;
@@ -63,5 +60,32 @@ public class MenuManager {
             }
         }
         return null;
+    }
+
+    public ArrayList<MenuItem> updateMenu(boolean breakfast, boolean dinner, Object sortOrder, Object sortBy, String regex) {
+        ArrayList<MenuItem> updatedMenuItems = new ArrayList<MenuItem>();
+        // Add all breakfast and dinner items
+        for (MenuItem item : menuItems) {
+            if (breakfast && item.getMenuType().equals("Breakfast")) {
+                updatedMenuItems.add(item);
+            }
+            if (dinner && item.getMenuType().equals("Diner")) {
+                updatedMenuItems.add(item);
+            }
+        }
+        // Remove based on regex
+        for (int i = 0; i < updatedMenuItems.size(); i++) {
+            if (!updatedMenuItems.get(i).getTitle().matches(regex)) {
+                updatedMenuItems.remove(i);
+                i--;
+            }
+        }
+        // Sort by chosen order
+        if (!((String) sortBy).isEmpty() && !((String) sortOrder).isEmpty()) {
+            if (sortBy.equals("Title")) {
+                updatedMenuItems.sort(null);
+            }
+        }
+        return updatedMenuItems;
     }
 }
