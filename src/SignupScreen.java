@@ -13,6 +13,7 @@ import java.util.Map;
 public class SignupScreen extends JDialog {
 	private CafeOnlineOrderSystemGUI mainGUI;
     private cafe mycafe;
+    private UserManager userManager;
 
     private JTextField firstNameInput;
     private JTextField lastNameInput;
@@ -27,6 +28,7 @@ public class SignupScreen extends JDialog {
         super(mainGUI, "Signup", true);
         this.mainGUI = mainGUI;
         this.mycafe = mycafe;
+        this.userManager = CafeOnlineOrderSystemGUI.USER_MANAGER;
 
         // Set up dialog box
         setSize(800, 500);
@@ -69,26 +71,47 @@ public class SignupScreen extends JDialog {
             addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent action) {
-                    boolean signupOK = true;
+                    if (firstNameInput.getText().trim().isEmpty() ||
+                            lastNameInput.getText().trim().isEmpty() ||
+                            emailInput.getText().trim().isEmpty() ||
+                            passwordInput.getPassword().length == 0) {
+                        JOptionPane.showMessageDialog(SignupScreen.this, "Please fill out all fields.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     try {
-                        // TODO: Check if password is valid using password exceptions
-                        if (false /* regex here */) {
-                            throw new LowerCaseCharacterMissing("Need a lowercase character");
+                        String password = new String(passwordInput.getPassword());
+                        // Checks if password is valid using password exceptions
+                        if (!password.matches(".*[a-z].*")) {
+                            throw new LowerCaseCharacterMissing("Password needs a lowercase character.");
+                        } else if (password.length() < 8) {
+                            throw new Minimum8CharactersRequired("Password needs at least 8 characters.");
+                        } else if (!password.matches(".*\\d.*")){
+                            throw new NumberCharacterMissing("Password needs a number.");
+                        } else if (!password.matches(".*[~!@#$%^&*()?<>|].*")) {
+                            throw new SpecialCharacterMissing("Password needs a special character.");
+                        } else if (!password.matches(".*[A-Z].*")) {
+                            throw new UpperCaseCharacterMissing("Password needs an uppercase character.");
                         }
                     } catch (PasswordException pe) {
-                        signupOK = false;
                         JOptionPane.showMessageDialog(SignupScreen.this, pe.getMessage(), "Password Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     } catch (Exception e) {
-                        signupOK = false;
                         JOptionPane.showMessageDialog(SignupScreen.this, "Something went wrong :(", "Unknown Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-                    if (signupOK) {
-                        // TODO: Generate username based on requirements
-                        String username = "";
-                        // TODO: Create new User based on role
-                        JOptionPane.showMessageDialog(SignupScreen.this, "Signup successful! Your username is " + username, "Success", JOptionPane.INFORMATION_MESSAGE);
-                        SignupScreen.this.dispose();
+                    // Generate username with random numbers
+                    String username = firstNameInput.getText().trim();
+                    for (int i = 0; i < 4; i++) {
+                        username += (int) (Math.random() * 10);
                     }
+                    // Create new User based on role
+                    if (roleInput.getSelectedItem().equals("Admin")) {
+                        userManager.addUser(new Admin(firstNameInput.getText().trim(), lastNameInput.getText().trim(), emailInput.getText().trim(), username, new String(passwordInput.getPassword()), true));
+                    } else {
+                        userManager.addUser(new Customer(firstNameInput.getText().trim(), lastNameInput.getText().trim(), emailInput.getText().trim(), username, new String(passwordInput.getPassword()), true));
+                    }
+                    JOptionPane.showMessageDialog(SignupScreen.this, "Signup successful! Your username is " + username, "Success", JOptionPane.INFORMATION_MESSAGE);
+                    SignupScreen.this.dispose();
                 }
             });
         }});

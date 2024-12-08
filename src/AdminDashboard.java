@@ -13,7 +13,7 @@ public class AdminDashboard extends JFrame {
 	public AdminDashboard(JFrame parent, User admin) {
 		super("Admin Dashboard");
 		this.admin = admin;
-		UserManager userManager = new UserManager(); // TODO: don't forget this
+		UserManager userManager = CafeOnlineOrderSystemGUI.USER_MANAGER; // TODO: don't forget this
 
 		// Create frame
 		setSize(800, 500);

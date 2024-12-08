@@ -15,6 +15,10 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
 
     private cafe cafedata = cafe.DB;
 
+    // Eager instantiation of managers
+    public static final UserManager USER_MANAGER = new UserManager();
+    public static final MenuManager MENU_MANAGER = new MenuManager();
+
     /*
      * Create new instance of Cafe Management System
      * Display home page to user, where they can signup for an account, login, or exit the application
@@ -75,13 +79,14 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
         buttongbc.insets = new Insets(0, -120, 10, -120);
         buttons.setOpaque(false);
 
-        // TODO: Style login, exit, and signup buttons
         loginButton = new JButton("Login");
         loginButton.addActionListener(new ClickActionListener());
+        loginButton.setBackground(Color.PINK);
         buttons.add(loginButton, buttongbc);
 
         exitButton = new JButton("Exit");
         exitButton.addActionListener(new ClickActionListener());
+        exitButton.setBackground(Color.GRAY);
         buttons.add(exitButton, buttongbc);
 
         content.add(buttons, gbc);
@@ -93,6 +98,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
 
         signupButton = new JButton("Signup");
         signupButton.addActionListener(new ClickActionListener());
+        signupButton.setBackground(Color.PINK);
         gbc.insets = new Insets(10, 50, 50, 50);
         content.add(signupButton, gbc);
 
@@ -108,7 +114,6 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
      * Cafe Management System start
      */
     public static void main(String[] args) {
-        CustomerDashboard cd = new CustomerDashboard(new JFrame(), new Customer("","","","","",true));
-        // CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+        CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
     }
 }

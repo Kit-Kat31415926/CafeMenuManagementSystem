@@ -155,8 +155,8 @@ public class CustomerDashboard extends JFrame {
     public CustomerDashboard(JFrame parent, User currentUser) {
         super("Customer Dashboard");
         this.currentUser = currentUser;
-        userManager = new UserManager();
-        menuManager = new MenuManager();
+        userManager = CafeOnlineOrderSystemGUI.USER_MANAGER;
+        menuManager = CafeOnlineOrderSystemGUI.MENU_MANAGER;
 
         // Create frame
         setSize(1220, 700);
@@ -275,7 +275,7 @@ public class CustomerDashboard extends JFrame {
 
         // Create logout button
         JPanel logoutPanel = new JPanel();
-        logoutPanel.add(new JLabel(currentUser.getFirstName() + " " + currentUser.getLastName() + ":" + currentUser.getUserName()));
+        logoutPanel.add(new JLabel(currentUser.getFirstName() + " " + currentUser.getLastName() + " : " + currentUser.getUserName()));
         logoutPanel.add(new JButton("Logout") {{
             addActionListener(e -> CustomerDashboard.this.dispose());
         }});

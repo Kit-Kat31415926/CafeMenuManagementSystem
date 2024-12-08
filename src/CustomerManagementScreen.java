@@ -26,7 +26,7 @@ public class CustomerManagementScreen extends JFrame {
 	public CustomerManagementScreen(JFrame parent, User user) {
 		super("Customer Management Dashboard");
 		this.currentUser = user;
-		this.userManager = new UserManager();
+		this.userManager = CafeOnlineOrderSystemGUI.USER_MANAGER;
 		this.activeCustomersPane = new JTextPane();
 		this.activeUsersDoc = activeCustomersPane.getStyledDocument();
 		this.inactiveCustomersPane = new JTextPane();
