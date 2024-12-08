@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class CustomerDashboard extends JFrame {
 
 	private UserManager userManager;
+	private MenuManager menuManager;
 	private User currentUser; // The user who is currently logged in
 
 	private JTextPane cartPane;
@@ -44,6 +45,7 @@ public class CustomerDashboard extends JFrame {
 
 	private int currentCursorStart;
 	private int currentCursorEnd;
+	private boolean selectedMenu = false;
 
 	// Create inner mouse-clicked class to highlight the text when clicking on JTextPane
 	class MouseClicked implements MouseListener {
@@ -51,40 +53,49 @@ public class CustomerDashboard extends JFrame {
 		public void mouseClicked(MouseEvent e) {
 			try {
 				// Reset style of all panes
-				Style billnostyle = billDoc.addStyle("nostyle", null);
 				Style cartnostyle = cartDoc.addStyle("nostyle", null);
 				Style menunostyle = menuDoc.addStyle("nostyle", null);
-				StyleConstants.setBackground(billnostyle, Color.white);
 				StyleConstants.setBackground(cartnostyle, Color.white);
 				StyleConstants.setBackground(menunostyle, Color.white);
-				StyledDocument cartStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
-				StyledDocument billStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
-				StyledDocument menuStyledDoc = ((JTextPane) e.getSource()).getStyledDocument();
-				cartDoc.setCharacterAttributes(0, cartStyledDoc.getLength(), billnostyle, false);
-				billDoc.setCharacterAttributes(0, billStyledDoc.getLength(), cartnostyle, false);
+				StyledDocument cartStyledDoc = cartPane.getStyledDocument();
+				StyledDocument menuStyledDoc = menuPane.getStyledDocument();
+				cartDoc.setCharacterAttributes(0, cartStyledDoc.getLength(), cartnostyle, false);
 				menuDoc.setCharacterAttributes(0, menuStyledDoc.getLength(), menunostyle, false);
 
+				// Highlight selected text
 				JTextPane styledPane = ((JTextPane) e.getSource());
 				StyledDocument styledDoc = styledPane.getStyledDocument();
-				// Color newly clicked menu item
 				int position = styledPane.getCaretPosition();
-				currentCursorStart = styledDoc.getText(0, styledDoc.getLength()).lastIndexOf("\n", position);
-				if (currentCursorStart == -1) {
-					currentCursorStart = 0;
+				int cursorStart = styledDoc.getText(0, styledDoc.getLength()).lastIndexOf("\n", position);
+				if (cursorStart == -1) {
+					cursorStart = 0;
 				}
-				currentCursorEnd = styledDoc.getText(0, styledDoc.getLength()).indexOf("\n", position);
-				if (currentCursorEnd == -1) {
-					currentCursorEnd = styledDoc.getLength();
+				int cursorEnd = styledDoc.getText(0, styledDoc.getLength()).indexOf("\n", position);
+				if (cursorEnd == -1) {
+					cursorEnd = styledDoc.getLength();
 				}
-				Style teststyle = styledDoc.addStyle("stylename", null);
-				StyleConstants.setBackground(teststyle, Color.PINK);
+				// Color newly clicked menu item
+				Style highlightstyle = styledDoc.addStyle("highlightstyle", null);
+				StyleConstants.setBackground(highlightstyle, Color.PINK);
 				// Set style
-				styledDoc.setCharacterAttributes(currentCursorStart, currentCursorEnd - currentCursorStart, teststyle, false);
-			} catch (BadLocationException ex) {
+				styledDoc.setCharacterAttributes(cursorStart, cursorEnd - cursorStart, highlightstyle, false);
+				// Edge case: double click on menu item
+				if (selectedMenu && styledPane == menuPane && position >= currentCursorStart && position <= currentCursorEnd) {
+					MenuItem menuItem = menuManager.getItemByTitle(styledDoc.getText(currentCursorStart, currentCursorEnd - currentCursorStart));
+					String menuDetails = "Title: " + menuItem.getTitle() + "\n" +
+							"Description: " + menuItem.getDescription() + "\n" +
+							"Item ID: " + menuItem.getItemID() + "\n" +
+							"Price: $" + String.format("%.2f", menuItem.getPrice()) + "\n" +
+							"Count: " + menuItem.getCount() + "\n";
+					JOptionPane.showMessageDialog(CustomerDashboard.this, menuDetails, "Item Details", JOptionPane.INFORMATION_MESSAGE);
+				}
+				// Update state variables
+				currentCursorStart = cursorStart;
+				currentCursorEnd = cursorEnd;
+				selectedMenu = styledPane == menuPane;
+			} catch(BadLocationException ex) {
 				throw new RuntimeException(ex);
 			}
-			System.out.println(menuPane.getCaretPosition());
-			System.out.println(menuPane.getSelectedText());
 		}
 
 		@Override
@@ -111,7 +122,8 @@ public class CustomerDashboard extends JFrame {
 	public CustomerDashboard(JFrame parent, User currentUser) {
 		super("Customer Dashboard");
 		this.currentUser = currentUser;
-		UserManager userManager = new UserManager();
+		userManager = new UserManager();
+		menuManager = new MenuManager();
 
 		// Create frame
 		setSize(800, 500);
@@ -168,8 +180,6 @@ public class CustomerDashboard extends JFrame {
 		billPane.setCaretColor(new Color(0,0,0,0));
 		// Set to uneditable
 		billPane.setEditable(false);
-		// Highlight line when clicked
-		billPane.addMouseListener(new MouseClicked());
 		billPane.setPreferredSize(new Dimension(375,125));
 
 		shoppingPanel.add(billPane, shoppinggbc);
@@ -223,6 +233,7 @@ public class CustomerDashboard extends JFrame {
 		menuPanel.add(new JLabel("Cafe Menu:"), menugbc);
 		menuDoc = new DefaultStyledDocument();
 		menuPane = new JTextPane(menuDoc);
+		menuPane.setHighlighter(null);
 		// Make cursor invisible
 		menuPane.setCaretColor(new Color(0,0,0,0));
 		// Set to uneditable
@@ -232,7 +243,7 @@ public class CustomerDashboard extends JFrame {
 		menuPane.setPreferredSize(new Dimension(375,300));
 		// List all menu items in document
 		try {
-            menuDoc.insertString(0, loadMenuItems().stream().map(MenuItem::getTitle).collect(Collectors.joining("\n")), null);
+            menuDoc.insertString(0, menuManager.getMenu().stream().map(MenuItem::getTitle).collect(Collectors.joining("\n")), null);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
@@ -285,46 +296,5 @@ public class CustomerDashboard extends JFrame {
 		add(mainContentPanel);
 
 		setVisible(true);
-	}
-
-	/*
-	 * Loads menu items
-	 */
-	private ArrayList<MenuItem> loadMenuItems() {
-		ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>();
-
-		try {
-			File file = new File("cafedata.txt");
-			Scanner scan = new Scanner(file);
-
-			// Scans until it reaches the menu data
-			while (scan.hasNextLine()) {
-				if (scan.nextLine().trim().equals("Menu:")) {
-					break;
-				}
-			}
-
-			// Scans each line to create menu objects
-			while (scan.hasNextLine()) {
-				String line = scan.nextLine();
-				// Check if line is valid menu item
-				if (!line.trim().isEmpty()) {
-					String[] menuItemDetails = line.split(";");
-					if (menuItemDetails[0].equals("Diner")) {
-						MenuItem newDiner = new DinerMenuItem(menuItemDetails[1], menuItemDetails[2], menuItemDetails[3],
-								Float.parseFloat(menuItemDetails[4]), Integer.parseInt(menuItemDetails[5]), menuItemDetails[6].equals("true"));
-						menuItems.add(newDiner);
-					} else if (menuItemDetails[0].equals("Pancake")){
-						MenuItem newPancake = new PancakeMenuItem(menuItemDetails[1], menuItemDetails[2], menuItemDetails[3],
-								Float.parseFloat(menuItemDetails[4]), Integer.parseInt(menuItemDetails[5]), menuItemDetails[6].equals("true"));
-						menuItems.add(newPancake);
-					}
-				}
-			}
-			scan.close();
-		} catch (IOException ex ) {
-			System.out.println(ex.getMessage());
-		}
-		return menuItems;
 	}
 }
