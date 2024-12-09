@@ -56,6 +56,7 @@ public class MenuManager {
      * @return ArrayList - all menu items available
      */
     public ArrayList<MenuItem> getMenu() {
+        System.out.println(" - " + menuItems);
         return menuItems;
     }
 

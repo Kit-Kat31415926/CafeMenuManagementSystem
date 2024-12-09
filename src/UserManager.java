@@ -60,12 +60,12 @@ public class UserManager {
 
     /*
      * Gets all active customers
-     * @return ArrayList - all active customers (including admins)
+     * @return ArrayList - all active customers
      */
     public ArrayList<Customer> getActiveCustomers() {
         ArrayList<Customer> customers = new ArrayList<Customer>();
         for (User u : users) {
-            if (u.isActive()) {
+            if (!u.isAdmin() && u.isActive()) {
                 customers.add((Customer) u);
             }
         }
@@ -74,12 +74,12 @@ public class UserManager {
 
     /*
      * Gets all inactive customers
-     * @return ArrayList - all inactive customers (including admins)
+     * @return ArrayList - all inactive customers
      */
     public ArrayList<Customer> getInactiveCustomers() {
         ArrayList<Customer> customers = new ArrayList<Customer>();
         for (User u : users) {
-            if (!u.isActive()) {
+            if (!u.isAdmin() && !u.isActive()) {
                 customers.add((Customer) u);
             }
         }
@@ -109,7 +109,6 @@ public class UserManager {
     public boolean isUser(String userName) {
         for (User u : users) {
             if (u.getUserName().equals(userName)) {
-                System.out.println(u.getUserName() + " != " + userName);
                 return true;
             }
         }

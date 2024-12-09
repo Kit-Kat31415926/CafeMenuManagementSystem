@@ -205,6 +205,7 @@ public class CustomerDashboard extends JFrame {
                 .map(title -> menuManager.getItemByTitle(title))
                 .collect(Collectors.toList());
         try {
+            itemsInCart = new ArrayList<>();
             cartDoc.insertString(0, formatMenu(itemsInCart), null);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
@@ -469,8 +470,7 @@ public class CustomerDashboard extends JFrame {
                 .collect(Collectors.joining("\n"));
         float subtotal = itemsInCart.stream().map(MenuItem::getPrice).reduce(0f, Float::sum);
         float tax = subtotal * TAX_PERCENT;
-        ButtonModel tipButton = tipGroup.getSelection();
-        float tipPercect = (float) (tipButton == noTipButton ? 0 : (tipButton == tenPercentButton ? 0.1 : (tipButton == fifteenPercentButton ? 0.15 : 0.2)));
+        float tipPercect = (float) (noTipButton.isSelected() ? 0 : (tenPercentButton.isSelected() ? 0.1 : (fifteenPercentButton.isSelected() ? 0.15 : 0.2)));
         float tip = subtotal * tipPercect;
         bill += "\nSubtotal: $" + String.format("%.2f", subtotal) +
                 "\nTax: $" + String.format("%.2f", tax) +

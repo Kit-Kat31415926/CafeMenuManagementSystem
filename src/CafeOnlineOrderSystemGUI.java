@@ -82,10 +82,12 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
         // TODO: Style login, exit, and signup buttons
         loginButton = new JButton("Login");
         loginButton.addActionListener(new ClickActionListener());
+        loginButton.setBackground(Color.PINK);
         buttons.add(loginButton, buttongbc);
 
         exitButton = new JButton("Exit");
         exitButton.addActionListener(new ClickActionListener());
+        exitButton.setBackground(Color.GRAY);
         buttons.add(exitButton, buttongbc);
 
         content.add(buttons, gbc);
@@ -97,6 +99,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
 
         signupButton = new JButton("Signup");
         signupButton.addActionListener(new ClickActionListener());
+        signupButton.setBackground(Color.PINK);
         gbc.insets = new Insets(10, 50, 50, 50);
         content.add(signupButton, gbc);
 
@@ -112,6 +115,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
      * Cafe Management System start
      */
     public static void main(String[] args) {
-        CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+        //CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+        CustomerDashboard c = new CustomerDashboard(new JFrame(), USER_MANAGER.getActiveCustomers().get(0));
     }
 }
