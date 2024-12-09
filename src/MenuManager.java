@@ -75,7 +75,7 @@ public class MenuManager {
     }
 
     /*
-     * Returns string of updated menu
+     * Returns string of updated menu after searching/sorting
      * @param breakfast - true if items on pancake menu should be displayed
      * @param dinner - true if items on diner menu should be displayed
      * @param sortOrder - whether to sort ascending or descending
