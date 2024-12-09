@@ -2,63 +2,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Admin implements User, Serializable {
+public class Admin extends User {
 	private static final long serialVersionUID = 1L;
-	
-	private String firstName;
-    private String lastName;
-    private String email;
-    private String userName;
-    private String password;
-    private boolean isActive;
-    private List<String> orderedItems;
-    private static final int MAX_ORDER_LIMIT = 10;
 
     // Constructor to initialize a Admin object 
     public Admin(String firstName, String lastName, String email, String userName, String password, boolean isActive) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.userName = userName;
-        this.password = password;
-        this.isActive = isActive;
-        this.orderedItems = new ArrayList<>();
-    }
-    
-   // xxx your codes
-   @Override
-    public String getFirstName() {
-        return firstName;
-    }
-
-    @Override
-    public String getLastName() {
-        return lastName;
-    }
-
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public boolean isActive() {
-        return isActive;
-    }
-
-    @Override
-    public List<String> getOrderedItems() {
-        return orderedItems;
+        super(firstName, lastName, email, userName, password, isActive);
     }
 
     @Override
@@ -67,33 +16,8 @@ public class Admin implements User, Serializable {
     }
 
     @Override
-    public void orderItems(MenuItem item) throws CustomExceptions.ItemNotAvailableException {
-        orderedItems.add(item.getItemID());
-    }
-
-    @Override
-    public void setActive(boolean active) {
-        isActive = true;
-    }
-
-    @Override
-    public void setOrderedItems(List<String> orderedItems) {
-        this.orderedItems = orderedItems;
-    }
-
-    @Override
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    @Override
-    public void cancelItem(MenuItem item) {
-        orderedItems.remove(item.getItemID());
-    }
-
-    @Override
-    public boolean canPlace() {
-        return orderedItems.size() < MAX_ORDER_LIMIT;
+    public boolean isAdmin() {
+        return "Admin".equals(getRole());
     }
 
     @Override
@@ -105,7 +29,7 @@ public class Admin implements User, Serializable {
     @Override
     public String toDataString() {
         // TODO: Return data as string
-        return getRole() + ";" + getFirstName() + ";" + getLastName() + ";" + getEmail() + ";" + getUserName() + ";" + getPassword() + ";" + isActive + ";" + getOrderedItems().toString();
+        return getRole() + ";" + getFirstName() + ";" + getLastName() + ";" + getEmail() + ";" + getUserName() + ";" + getPassword() + ";" + isActive() + ";" + getOrderedItems().toString();
     }
 
     /*

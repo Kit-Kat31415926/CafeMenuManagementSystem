@@ -324,7 +324,7 @@ public class CustomerDashboard extends JFrame {
         sortOrderChoice = new JComboBox<String>(new String[]{"", "Ascending", "Descending"});
 
         JLabel sortByLabel = new JLabel("Search/Sort By: ");
-        sortByChoice = new JComboBox<String>(new String[]{"", "Title", "Price"});
+        sortByChoice = new JComboBox<String>(new String[]{"", "Title", "Price", "ItemID", "Description"});
 
         sortButton = new JButton("Sort");
         sortButton.addActionListener(new ButtonListener());

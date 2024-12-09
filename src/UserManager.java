@@ -86,6 +86,34 @@ public class UserManager {
         return customers;
     }
 
+	/*
+	 * Gets all active customers sorted
+	 * @return ArrayList - all active customers
+	 */
+	public ArrayList<Customer> getSortedActiveCustomers() {
+		ArrayList<Customer> customers = new ArrayList<Customer>();
+		for (User u : users) {
+			if (!u.isAdmin() && u.isActive()) {
+				customers.add((Customer) u);
+			}
+		}
+		return customers;
+	}
+
+	/*
+	 * Gets all inactive customers sorted
+	 * @return ArrayList - all inactive customers
+	 */
+	public ArrayList<Customer> getSortedInactiveCustomers() {
+		ArrayList<Customer> customers = new ArrayList<Customer>();
+		for (User u : users) {
+			if (!u.isAdmin() && !u.isActive()) {
+				customers.add((Customer) u);
+			}
+		}
+		return customers;
+	}
+
     /*
      * Checks if login information is valid
      * @param userName - username of user logging in
@@ -158,5 +186,16 @@ public class UserManager {
 	 */
 	public boolean remove(User user) {
 		return this.users.remove(user);
+	}
+
+	/*
+	 * Sets sorting algorithm
+	 * @param sortBy - sorts ascending or descending
+	 * @param sea
+	 */
+	public void sortAll(Object sortAsc, Object sortBy, String regex) {
+		User.setAsc(((String) sortAsc).equals("Ascending"));
+		User.setSortBy((String) sortBy);
+		User.setRegex(regex);
 	}
 }

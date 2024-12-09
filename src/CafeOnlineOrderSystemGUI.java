@@ -115,6 +115,7 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
      * Cafe Management System start
      */
     public static void main(String[] args) {
-        CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+        //CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
+        CustomerDashboard c = new CustomerDashboard(new JFrame(), USER_MANAGER.getActiveCustomers().get(5));
     }
 }

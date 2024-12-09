@@ -16,7 +16,7 @@ public abstract class MenuItem implements Comparable<MenuItem>, Serializable {
     private boolean current;
 
     private static boolean ascending;
-    private static String sortBy;
+    private static String sortBy = "";
 
     private ArrayList<MenuItem> menuItems = new ArrayList<>(); // Store menu items
 
@@ -190,8 +190,37 @@ public abstract class MenuItem implements Comparable<MenuItem>, Serializable {
             } else {
                 return (int) (o.getPrice() - this.getPrice());
             }
+        } else if (sortBy.equals("ItemID")) {
+            if (ascending) {
+                return (this.getItemID().compareTo(this.itemID));
+            } else {
+                return (- this.getItemID().compareTo(this.itemID));
+            }
+        } else if (sortBy.equals("Description")) {
+            if (ascending) {
+                return (this.getDescription().compareTo(o.getDescription()));
+            } else {
+                return (- this.getDescription().compareTo(o.getDescription()));
+            }
         }
         return 0;
+    }
+
+    /*
+     * Gets value to search by
+     *  @return String - value to be searched by with regex
+     */
+    public String getSearchBy() {
+        if (sortBy.equals("Title")) {
+            return getTitle();
+        } else if (sortBy.equals("Price")) {
+            return String.valueOf(getPrice());
+        } else if (sortBy.equals("ItemID")) {
+            return getItemID();
+        } else if (sortBy.equals("Description")) {
+            return getDescription();
+        }
+        return  null;
     }
 }
 	

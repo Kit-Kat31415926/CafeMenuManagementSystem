@@ -85,6 +85,8 @@ public class MenuManager {
      * @return ArrayList - list of all matching items on menu
      */
     public ArrayList<MenuItem> updateMenu(boolean breakfast, boolean dinner, Object sortOrder, Object sortBy, String regex) {
+        MenuItem.setAscending(((String)sortOrder).equals("Ascending"));
+        MenuItem.setSortBy((String)sortBy);
         ArrayList<MenuItem> updatedMenuItems = new ArrayList<MenuItem>();
         // Add all breakfast and dinner items
         for (MenuItem item : menuItems) {
@@ -95,20 +97,20 @@ public class MenuManager {
                 updatedMenuItems.add(item);
             }
         }
-        // Remove based on regex
-        if (!regex.equals("")) {
+        // Sort by chosen order
+        if (!((String) sortBy).isEmpty()) {
+            // Remove based on regex
             for (int i = 0; i < updatedMenuItems.size(); i++) {
-                if (!updatedMenuItems.get(i).getTitle().matches(".*" + regex + ".*")) {
+                if (!updatedMenuItems.get(i).getSearchBy().matches(".*" + regex + ".*")) {
                     updatedMenuItems.remove(i);
                     i--;
                 }
             }
-        }
-        // Sort by chosen order
-        if (!((String) sortBy).isEmpty() && !((String) sortOrder).isEmpty()) {
-            MenuItem.setAscending(sortOrder.equals("Ascending"));
-            MenuItem.setSortBy((String) sortBy);
-            updatedMenuItems.sort(null);
+            if (!((String) sortOrder).isEmpty()) {
+                MenuItem.setAscending(sortOrder.equals("Ascending"));
+                MenuItem.setSortBy((String) sortBy);
+                updatedMenuItems.sort(null);
+            }
         }
         return updatedMenuItems;
     }
