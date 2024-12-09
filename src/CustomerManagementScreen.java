@@ -343,11 +343,11 @@ public class CustomerManagementScreen extends JFrame {
 				var success = JOptionPane.showConfirmDialog(null, addUser, "Enter user details", JOptionPane.OK_CANCEL_OPTION);
 				int usernameNum = (int) (Math.random() * 9999) % 10000;
 				if (success == 0 && userTypeComboBox.getSelectedItem().equals("Customer")) {
-					userManager.add(new Customer(firstName.getText(), lastName.getText(), email.getText(),
+					userManager.addUser(new Customer(firstName.getText(), lastName.getText(), email.getText(),
 							firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
 					writeToDocs();
 				} else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
-					userManager.add(new Admin(firstName.getText(), lastName.getText(), email.getText(),
+					userManager.addUser(new Admin(firstName.getText(), lastName.getText(), email.getText(),
 							firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
 				}
 			} else if (e.getSource() == edit) {
@@ -397,12 +397,12 @@ public class CustomerManagementScreen extends JFrame {
 					String userName = user.getUserName();
 					if (success == 0 && userTypeComboBox.getSelectedItem().equals("Customer")) {
 						userManager.remove(user);
-						userManager.add(new Customer(firstName.getText(), lastName.getText(), email.getText(),
+						userManager.addUser(new Customer(firstName.getText(), lastName.getText(), email.getText(),
 								userName, password.getText(), active.isSelected()));
 						writeToDocs();
 					} else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
 						userManager.remove(user);
-						userManager.add(new Admin(firstName.getText(), lastName.getText(), email.getText(),
+						userManager.addUser(new Admin(firstName.getText(), lastName.getText(), email.getText(),
 								userName, password.getText(), active.isSelected()));
 						writeToDocs();
 					}
