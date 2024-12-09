@@ -1,18 +1,16 @@
 import javax.swing.*;
-import javax.swing.event.ListDataListener;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
+/*
+ * Creates screen to manage customers
+ * @author - Arianna Gonzalez
+ */
 public class CustomerManagementScreen extends JFrame {
 
 	private UserManager userManager;
@@ -38,6 +36,9 @@ public class CustomerManagementScreen extends JFrame {
 	private int currentCursorEnd = -1;
 	private boolean isActivePane = false;
 
+	/*
+	 * Creates new customer management screen
+	 */
 	public CustomerManagementScreen(JFrame parent, User user) {
 		// basic set up
 		super("Customer Management Dashboard");
@@ -74,11 +75,18 @@ public class CustomerManagementScreen extends JFrame {
 		// active customer textPane
 		this.activeCustomersPane = new JTextPane();
 		activeCustomersPane.setEditable(false);
+		activeCustomersPane.setHighlighter(null);
+		activeCustomersPane.setCaretColor(new Color(0,0,0,0));
+		activeCustomersPane.setPreferredSize(new Dimension(300,300));
 		MouseClickListener activeCustomersPaneListener = new MouseClickListener();
 		activeCustomersPane.addMouseListener(activeCustomersPaneListener);
+
 		// inactive customer textPane
 		this.inactiveCustomersPane = new JTextPane();
 		inactiveCustomersPane.setEditable(false);
+		inactiveCustomersPane.setHighlighter(null);
+		inactiveCustomersPane.setCaretColor(new Color(0,0,0,0));
+		inactiveCustomersPane.setPreferredSize(new Dimension(300,300));
 		MouseClickListener inactiveCustomersPaneListener = new MouseClickListener();
 		inactiveCustomersPane.addMouseListener(inactiveCustomersPaneListener);
 
