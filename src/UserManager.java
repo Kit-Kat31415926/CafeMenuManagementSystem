@@ -106,4 +106,12 @@ public class UserManager {
 		}
 		return null;
 	}
+	
+	public void add(User user) {
+		this.users.add(user);
+	}
+	
+	public boolean remove(User user) {
+		return this.users.remove(user);
+	}
 }

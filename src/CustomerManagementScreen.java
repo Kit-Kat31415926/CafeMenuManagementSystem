@@ -22,14 +22,18 @@ public class CustomerManagementScreen extends JFrame {
 	private JComboBox<String> userTypeComboBox;
 	private Map<String, User> nameToUserMap = new HashMap<>();
 	private JFrame parent;
-	
+
 	// Buttons
 	private JButton logout;
 	private JButton reactivate;
 	private JButton inactivate;
+	private JButton add;
+	private JButton edit;
+	private JButton delete;
+
 	// variables for MouseClickListener
 	private int currentCursorStart;
-	private int currentCursorEnd;
+	private int currentCursorEnd = -1;
 	private boolean isActivePane = false;
 
 	public CustomerManagementScreen(JFrame parent, User user) {
@@ -61,32 +65,38 @@ public class CustomerManagementScreen extends JFrame {
 		activeLabel.setFont(new Font(Font.SERIF, Font.BOLD, 24));	
 
 		// set up the customer textPanes
+		// active customer textPane
 		this.activeCustomersPane = new JTextPane();
 		activeCustomersPane.setEditable(false);
-		//this.activeUsersDoc = activeCustomersPane.getStyledDocument();
 		MouseClickListener activeCustomersPaneListener = new MouseClickListener();
 		activeCustomersPane.addMouseListener(activeCustomersPaneListener);
-
+		// inactive customer textPane
 		this.inactiveCustomersPane = new JTextPane();
 		inactiveCustomersPane.setEditable(false);
-		//this.inactiveUsersDoc = inactiveCustomersPane.getStyledDocument();
 		MouseClickListener inactiveCustomersPaneListener = new MouseClickListener();
 		inactiveCustomersPane.addMouseListener(inactiveCustomersPaneListener);
 
 		// create and write customers to panes
 		writeToDocs();
 
-		// create activate and reactivateButtons
+		// create activate and reactivate Buttons
 		reactivate = new JButton("Reactivate");
 		reactivate.addActionListener(new ButtonListener());
 		inactivate = new JButton("Inactivate");
 		inactivate.addActionListener(new ButtonListener());
 
+		// create combo Box for management pop-ups
+		userTypeComboBox = new JComboBox<String>();
+		userTypeComboBox.addItem("Customer");
+		userTypeComboBox.addItem("Admin");
+
 		// create management buttons
-		// TODO: implement buttons
-		JButton add = new JButton("Add");
-		JButton edit = new JButton("Edit");
-		JButton delete = new JButton("Delete");
+		add = new JButton("Add");
+		add.addActionListener(new ButtonListener());
+		edit = new JButton("Edit");
+		edit.addActionListener(new ButtonListener());
+		delete = new JButton("Delete");
+		delete.addActionListener(new ButtonListener());
 
 		// add management buttons to panel
 		JPanel managementButtons = new JPanel();
@@ -151,7 +161,7 @@ public class CustomerManagementScreen extends JFrame {
 		// TODO: fix GUI, probably using GridBagLayout
 		setVisible(true);
 	}
-	
+
 	public void resetAllDocStyling() {
 		Style cartnostyle = activeUsersDoc.addStyle("nostyle", null);
 		Style menunostyle = inactiveUsersDoc.addStyle("nostyle", null);
@@ -160,7 +170,7 @@ public class CustomerManagementScreen extends JFrame {
 		activeUsersDoc.setCharacterAttributes(0, activeUsersDoc.getLength(), cartnostyle, false);
 		inactiveUsersDoc.setCharacterAttributes(0, inactiveUsersDoc.getLength(), menunostyle, false);
 	}
-	
+
 	public String getSelectedName() {
 		try {
 			String line = null;
@@ -175,7 +185,7 @@ public class CustomerManagementScreen extends JFrame {
 		}
 		return null;
 	}
-	
+
 	private void writeToDocs() {
 		activeUsersDoc = activeCustomersPane.getStyledDocument();
 		try {
@@ -185,7 +195,7 @@ public class CustomerManagementScreen extends JFrame {
 		try {
 			inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
 		} catch (BadLocationException e) {}
-		
+
 		for(Customer c: userManager.getActiveCustomers()) {
 			try {
 				activeUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
@@ -198,7 +208,7 @@ public class CustomerManagementScreen extends JFrame {
 			} catch (BadLocationException e) {}
 		}
 	}
-	
+
 	class MouseClickListener implements MouseListener {
 
 
@@ -268,7 +278,7 @@ public class CustomerManagementScreen extends JFrame {
 		}
 
 	}
-	
+
 	public class ButtonListener implements ActionListener {
 
 		@Override
@@ -280,6 +290,7 @@ public class CustomerManagementScreen extends JFrame {
 				try {
 					User user = userManager.getUserFromName(getSelectedName());
 					user.setActive(true);
+					currentCursorEnd = -1;
 				} catch (NullPointerException ex) {
 					JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -288,10 +299,122 @@ public class CustomerManagementScreen extends JFrame {
 				try {
 					User user = userManager.getUserFromName(getSelectedName());
 					user.setActive(false);
+					currentCursorEnd = -1;
 				} catch (NullPointerException ex) {
 					JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				writeToDocs();
+			} else if (e.getSource() == add) {
+				JPanel addUser = new JPanel();
+				JTextField firstName = new JTextField();
+				firstName.setPreferredSize(new Dimension(150, 25));
+				JTextField lastName = new JTextField();
+				lastName.setPreferredSize(new Dimension(150, 25));
+				JTextField email = new JTextField();
+				email.setPreferredSize(new Dimension(150, 25));
+				JTextField password = new JTextField();
+				password.setPreferredSize(new Dimension(150, 25));
+				ButtonGroup status = new ButtonGroup();
+				JRadioButton active = new JRadioButton("Active");
+				status.add(active);
+				JRadioButton inactive = new JRadioButton("Inactive");
+				status.add(inactive);
+
+				addUser.add(new JLabel("User Type:"));
+				addUser.add(userTypeComboBox);
+				addUser.add(new JLabel("First Name:"));
+				addUser.add(firstName);
+				addUser.add(new JLabel("Last Name:"));
+				addUser.add(lastName);
+				addUser.add(new JLabel("Email:"));
+				addUser.add(email);
+				addUser.add(new JLabel("Password:"));
+				addUser.add(password);
+				addUser.add(new JLabel("Status:"));
+				addUser.add(active);
+				addUser.add(inactive);
+
+				var success = JOptionPane.showConfirmDialog(null, addUser, "Enter user details", JOptionPane.OK_CANCEL_OPTION);
+				int usernameNum = (int) (Math.random() * 9999) % 10000;
+				if (success == 0 && userTypeComboBox.getSelectedItem().equals("Customer")) {
+					userManager.add(new Customer(firstName.getText(), lastName.getText(), email.getText(), 
+							firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
+					writeToDocs();
+				} else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
+					userManager.add(new Admin(firstName.getText(), lastName.getText(), email.getText(), 
+							firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
+				}
+			} else if (e.getSource() == edit) {
+				try {
+					User user = userManager.getUserFromName(getSelectedName());
+					currentCursorEnd = -1;
+					JPanel editUser = new JPanel();
+					JTextField firstName = new JTextField();
+					firstName.setText(user.getFirstName());
+					firstName.setPreferredSize(new Dimension(150, 25));
+					JTextField lastName = new JTextField();
+					lastName.setText(user.getLastName());
+					lastName.setPreferredSize(new Dimension(150, 25));
+					JTextField email = new JTextField();
+					email.setText(user.getEmail());
+					email.setPreferredSize(new Dimension(150, 25));
+					JTextField password = new JTextField();
+					password.setText(user.getPassword());
+					password.setPreferredSize(new Dimension(150, 25));
+					ButtonGroup status = new ButtonGroup();
+					JRadioButton active = new JRadioButton("Active");
+					status.add(active);
+					JRadioButton inactive = new JRadioButton("Inactive");
+					status.add(inactive);
+					userTypeComboBox.setSelectedIndex(0);
+					if(user.isActive()) {
+						active.setSelected(true);
+					} else {
+						inactive.setSelected(true);
+					}
+
+					editUser.add(new JLabel("User Type:"));
+					editUser.add(userTypeComboBox);
+					editUser.add(new JLabel("First Name:"));
+					editUser.add(firstName);
+					editUser.add(new JLabel("Last Name:"));
+					editUser.add(lastName);
+					editUser.add(new JLabel("Email:"));
+					editUser.add(email);
+					editUser.add(new JLabel("Password:"));
+					editUser.add(password);
+					editUser.add(new JLabel("Status:"));
+					editUser.add(active);
+					editUser.add(inactive);
+
+					var success = JOptionPane.showConfirmDialog(null, editUser, "Update User Details", JOptionPane.OK_CANCEL_OPTION);
+					String userName = user.getUserName();
+					if (success == 0 && userTypeComboBox.getSelectedItem().equals("Customer")) {
+						userManager.remove(user);
+						userManager.add(new Customer(firstName.getText(), lastName.getText(), email.getText(), 
+								userName, password.getText(), active.isSelected()));
+						writeToDocs();
+					} else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
+						userManager.remove(user);
+						userManager.add(new Admin(firstName.getText(), lastName.getText(), email.getText(), 
+								userName, password.getText(), active.isSelected()));
+						writeToDocs();
+					}
+				} catch (NullPointerException ex) {
+					JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			} else if (e.getSource() == delete) {
+				try {
+					User user = userManager.getUserFromName(getSelectedName());
+					var success = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+					if (success == 0) {
+						userManager.remove(user);
+						writeToDocs();
+					}
+					currentCursorEnd = -1;
+				} catch (NullPointerException ex) {
+					JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 
 		}
