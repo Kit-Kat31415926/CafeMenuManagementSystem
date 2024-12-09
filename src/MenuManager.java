@@ -1,5 +1,9 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Scanner;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +78,15 @@ public class MenuManager {
         }
         return null;
     }
+
+    public void add(MenuItem menuItem) {
+    	this.menuItems.add(menuItem);
+    }
+
+    public boolean remove(MenuItem menuItem) {
+    	return this.menuItems.remove(menuItem);
+    }
+
 
     /*
      * Returns string of updated menu after searching/sorting
