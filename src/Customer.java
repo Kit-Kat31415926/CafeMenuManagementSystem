@@ -71,7 +71,7 @@ public class Customer implements User, Serializable {
 
     @Override
     public void setActive(boolean active) {
-        isActive = true;
+        isActive = active;
     }
 
     @Override

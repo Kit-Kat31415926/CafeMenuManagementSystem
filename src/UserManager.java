@@ -130,6 +130,20 @@ public class UserManager {
         return null;
     }
 
+	/*
+	 * Gets user based on their name
+	 * @param name - given name to find user with
+	 * @return User - user based on name
+	 */
+	public User getUserFromName(String name) {
+		for (User u: users) {
+			if (name.contains(u.getFirstName()) && name.contains(u.getLastName())) {
+				return u;
+			}
+		}
+		return null;
+	}
+
     /*
      * Adds new user to list of current users
      * @param u - user to be added
@@ -137,4 +151,13 @@ public class UserManager {
     public void addUser(User u) {
         users.add(u);
     }
+
+	/*
+	 * Removes user
+	 * @param user - user to be removed
+	 * @return boolean - true if successfully removed false otherwise
+	 */
+	public boolean remove(User user) {
+		return this.users.remove(user);
+	}
 }
