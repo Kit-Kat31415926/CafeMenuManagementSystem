@@ -31,14 +31,4 @@ public class Admin extends User {
         // TODO: Return data as string
         return getRole() + ";" + getFirstName() + ";" + getLastName() + ";" + getEmail() + ";" + getUserName() + ";" + getPassword() + ";" + isActive() + ";" + getOrderedItems().toString();
     }
-
-    /*
-     * Compares by username
-     * @param User - user to be compared with
-     * @return - integer difference
-     */
-    @Override
-    public int compareTo(User o) {
-        return this.getUserName().compareTo(o.getUserName());
-    }
 }

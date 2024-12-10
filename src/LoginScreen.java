@@ -61,7 +61,7 @@ public class LoginScreen extends JDialog {
                         return;
                     }
                     // Check if login is correct
-                    if (!userManager.correctLogin(usernameInput.getText(), new String(passwordInput.getPassword()))) {
+                    if (userManager.correctLogin(usernameInput.getText(), new String(passwordInput.getPassword()))) {
                         // Get user and show proper dashboard
                         User user = userManager.getUser(usernameInput.getText());
 						JOptionPane.showMessageDialog(LoginScreen.this, "Login successful! Welcome, " + user.getUserName(), "Success", JOptionPane.INFORMATION_MESSAGE);

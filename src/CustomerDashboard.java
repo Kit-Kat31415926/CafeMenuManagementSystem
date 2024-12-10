@@ -137,6 +137,8 @@ public class CustomerDashboard extends JFrame {
                         addItemToCart(menuManager.getItemByTitle(getSelectedItemTitle()));
                     }
                 } else if (e.getSource() == orderButton) {
+                    currentUser.setOrderedItems(itemsInCart.stream().map(MenuItem::getItemID).collect(Collectors.toList()));
+                    CafeOnlineOrderSystemGUI.writeToDatabase();
                     updateBill();
                 } else if (e.getSource() == cancelButton) {
                     cancelItem();
@@ -241,7 +243,12 @@ public class CustomerDashboard extends JFrame {
         tenPercentButton = new JRadioButton("10% Tip");
         fifteenPercentButton = new JRadioButton("15% Tip");
         twentyPercentButton = new JRadioButton("20% Tip");
-
+        
+        noTipButton.addActionListener(e -> updateBill());
+        tenPercentButton.addActionListener(e -> updateBill());
+        fifteenPercentButton.addActionListener(e -> updateBill());
+        twentyPercentButton.addActionListener(e -> updateBill());
+        
         tipGroup = new ButtonGroup();
         tipGroup.add(noTipButton);
         tipGroup.add(tenPercentButton);
@@ -277,9 +284,17 @@ public class CustomerDashboard extends JFrame {
         // Create logout button
         JPanel logoutPanel = new JPanel();
         logoutPanel.add(new JLabel(currentUser.getFirstName() + " " + currentUser.getLastName() + " : " + currentUser.getUserName()));
-        logoutPanel.add(new JButton("Logout") {{
-            addActionListener(e -> CustomerDashboard.this.dispose());
-        }});
+        JButton logout = new JButton("Logout");
+        logoutPanel.add(logout);
+        logout.addActionListener(new ActionListener() {
+			@Override 
+			public void actionPerformed(ActionEvent e) {
+		        if (currentUser.isAdmin()) {
+		        	parent.dispose();
+		        }
+				CustomerDashboard.this.dispose();
+			}
+		});
 
         menuPanel.add(logoutPanel, menugbc);
 
@@ -446,6 +461,7 @@ public class CustomerDashboard extends JFrame {
         try {
             cartDoc.remove(0, cartDoc.getLength());
             cartDoc.insertString(0, formatMenu(itemsInCart), cartfont);
+            updateBill();
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
@@ -457,7 +473,7 @@ public class CustomerDashboard extends JFrame {
      */
     public void updateBill() {
         // Update user's items ordered
-        currentUser.setOrderedItems(itemsInCart.stream().map(MenuItem::getTitle).collect(Collectors.toList()));
+        currentUser.setOrderedItems(itemsInCart.stream().map(MenuItem::getItemID).collect(Collectors.toList()));
         // Update bill and set right align with spacing
         String bill = itemsInCart.stream()
                 .map(item -> " ".repeat(62 - item.getTitle().length() - String.format("%.2f", item.getPrice()).length()) +
@@ -497,6 +513,10 @@ public class CustomerDashboard extends JFrame {
      */
     public void sortMenu() {
         try {
+            // Reset state variables
+            currentCursorStart = 0;
+            currentCursorEnd = 0;
+            selectedMenu = false;
             menuDoc.remove(0, menuDoc.getLength());
             menuDoc.insertString(0, formatMenu(menuManager.updateMenu(breakfastCheckbox.isSelected(), dinnerCheckbox.isSelected(), sortOrderChoice.getSelectedItem(), sortByChoice.getSelectedItem(), searchInput.getText())), menufont);
         } catch (BadLocationException ex) {

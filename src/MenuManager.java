@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,6 @@ public class MenuManager {
      * @return ArrayList - all menu items available
      */
     public ArrayList<MenuItem> getMenu() {
-        System.out.println(" - " + menuItems);
         return menuItems;
     }
 
@@ -81,10 +81,12 @@ public class MenuManager {
 
     public void add(MenuItem menuItem) {
     	this.menuItems.add(menuItem);
+        CafeOnlineOrderSystemGUI.writeToDatabase();
     }
 
-    public boolean remove(MenuItem menuItem) {
-    	return this.menuItems.remove(menuItem);
+    public void remove(MenuItem menuItem) {
+    	this.menuItems.remove(menuItem);
+        CafeOnlineOrderSystemGUI.writeToDatabase();
     }
     
     public ArrayList<MenuItem> getActiveMenu() {
@@ -130,5 +132,4 @@ public class MenuManager {
         }
         return updatedMenuItems;
     }
-
 }

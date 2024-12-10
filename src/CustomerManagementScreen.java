@@ -136,7 +136,8 @@ public class CustomerManagementScreen extends JFrame {
         // create label and comboBox for search/sort by
         JLabel searchSortBy = new JLabel("Search/Sort By:");
         searchSortByComboBox = new JComboBox<String>();
-        searchSortByComboBox.addItem("Name");
+        searchSortByComboBox.addItem("First Name");
+        searchSortByComboBox.addItem("Last Name");
         searchSortByComboBox.addItem("Username");
         searchSortByComboBox.addItem("Email");
         searchSortByComboBox.setOpaque(false);
@@ -315,6 +316,7 @@ public class CustomerManagementScreen extends JFrame {
                     }
                     User user = userManager.getUserFromName(getSelectedName());
                     user.setActive(true);
+                    CafeOnlineOrderSystemGUI.writeToDatabase();
                     currentCursorEnd = -1;
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -328,6 +330,7 @@ public class CustomerManagementScreen extends JFrame {
                     }
                     User user = userManager.getUserFromName(getSelectedName());
                     user.setActive(false);
+                    CafeOnlineOrderSystemGUI.writeToDatabase();
                     currentCursorEnd = -1;
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -447,14 +450,8 @@ public class CustomerManagementScreen extends JFrame {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else if (e.getSource() == sort || e.getSource() == search) {
-            	System.out.println(sortOrderComboBox.getSelectedItem() + " " + searchSortByComboBox.getSelectedItem());
-            	User.setAsc(!sortOrderComboBox.getSelectedItem().equals("Ascending"));
-            	User.setSortBy((String)(searchSortByComboBox.getSelectedItem()));
-				ArrayList<Customer> result = (ArrayList<Customer>)userManager.getCustomers().stream()
-						.filter(m -> searchSortInput.getText().length() <= 0 || (m.getSearchBy()).contains(searchSortInput.getText()))
-						.sorted()
-						.collect(Collectors.toList());
-				writeToDocs(result);
+                userManager.sortAll(sortOrderComboBox.getSelectedItem(), searchSortByComboBox.getSelectedItem(), searchSortInput.getText());
+				writeToDocs(userManager.getSortedCustomers());
             }
 
         }

@@ -1,8 +1,8 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
 
 /*
  * Create new Cafe Management System
@@ -112,11 +112,38 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
 	}
 
     /*
+     * Writes information to database when updated
+     */
+    public static void writeToDatabase() {
+        try (FileWriter writer = new FileWriter("cafeData.txt")){
+            String res = "";
+            res += ("Menu:\n");
+            for (MenuItem m : MENU_MANAGER.getMenu()) {
+                res += (m.getMenuType() + ";" + m.getTitle() + ";" + m.getItemID() + ";" + m.getDescription() + ";" + m.getPrice() + ";" + m.getCount() + ";" + m.isCurrent());
+                res += ("\n");
+            }
+            res += ("Users:\n");
+            for (User u : USER_MANAGER.getAllUsers()) {
+                res += (u.getRole() + ";" + u.getFirstName() + ";" + u.getLastName() + ";" + u.getEmail() + ";" + u.getUserName() + ";" + u.getPassword() + ";" + u.isActive());
+                if (u.getOrderedItems().isEmpty()) {
+                    res += (";");
+                } else {
+                    for (String itemID : u.getOrderedItems()) {
+                        res += (";" + itemID);
+                    }
+                }
+                res += ("\n");
+            }
+            writer.write(res);
+        } catch (Exception ex) {
+            System.out.println("Failed to write users to database: " + ex);
+        }
+    }
+
+    /*
      * Cafe Management System start
      */
     public static void main(String[] args) {
         CafeOnlineOrderSystemGUI cafe = new CafeOnlineOrderSystemGUI();
-        //AdminDashboard a = new AdminDashboard(new JFrame(), new Admin("Arianna", "Gonzalez", "ari@gmail.com", "arianna1404", "Password1!", true));
-        //CustomerDashboard c = new CustomerDashboard(new JFrame(), USER_MANAGER.getActiveCustomers().get(5));
     }
 }
