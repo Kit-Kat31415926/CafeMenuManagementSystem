@@ -497,6 +497,10 @@ public class CustomerDashboard extends JFrame {
      */
     public void sortMenu() {
         try {
+            // Reset state variables
+            currentCursorStart = 0;
+            currentCursorEnd = 0;
+            selectedMenu = false;
             menuDoc.remove(0, menuDoc.getLength());
             menuDoc.insertString(0, formatMenu(menuManager.updateMenu(breakfastCheckbox.isSelected(), dinnerCheckbox.isSelected(), sortOrderChoice.getSelectedItem(), sortByChoice.getSelectedItem(), searchInput.getText())), menufont);
         } catch (BadLocationException ex) {

@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
@@ -73,6 +75,28 @@ public class UserManager {
 	}
 
     /*
+     * Gets all customers in sorted order
+     * @return ArrayList - all inactive customers
+     */
+    public ArrayList<Customer> getSortedCustomers() {
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+        for (User u : users) {
+            if (!u.isAdmin()) {
+                customers.add((Customer) u);
+            }
+        }
+        customers.sort(null);
+        // Sort by regex
+        ArrayList<Customer> result = new ArrayList<Customer>();
+        for (Customer u : customers) {
+            if (u.getSearchBy().matches(".*" + User.getRegex() + ".*")) {
+                result.add(u);
+            }
+        }
+        return result;
+    }
+
+    /*
      * Checks if login information is valid
      * @param userName - username of user logging in
      * @param password - password of user logging in
@@ -99,6 +123,13 @@ public class UserManager {
             }
         }
         return false;
+    }
+
+    /*
+     * Returns all users
+     */
+    public ArrayList<User> getAllUsers() {
+        return users;
     }
 
     /*
@@ -130,24 +161,25 @@ public class UserManager {
 	}
 
     /*
-     * Adds new user to list of current users
+     * Adds new user to list of current users and updates database
      * @param u - user to be added
      */
     public void addUser(User u) {
         users.add(u);
+        CafeOnlineOrderSystemGUI.writeToDatabase();
     }
 
 	/*
-	 * Removes user
+	 * Removes user and updates database
 	 * @param user - user to be removed
-	 * @return boolean - true if successfully removed false otherwise
 	 */
-	public boolean remove(User user) {
-		return this.users.remove(user);
+	public void remove(User user) {
+		this.users.remove(user);
+        CafeOnlineOrderSystemGUI.writeToDatabase();
 	}
 
 	/*
-	 * Sets sorting algorithm
+	 * Sets sorting algorithm for each user
 	 * @param sortBy - sorts ascending or descending
 	 * @param sea
 	 */
