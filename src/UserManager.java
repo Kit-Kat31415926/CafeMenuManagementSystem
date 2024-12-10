@@ -57,61 +57,19 @@ public class UserManager {
             System.out.println(ex.getMessage());
         }
     }
-
-    /*
-     * Gets all active customers
-     * @return ArrayList - all active customers
-     */
-    public ArrayList<Customer> getActiveCustomers() {
-        ArrayList<Customer> customers = new ArrayList<Customer>();
-        for (User u : users) {
-            if (!u.isAdmin() && u.isActive()) {
-                customers.add((Customer) u);
-            }
-        }
-        return customers;
-    }
-
-    /*
-     * Gets all inactive customers
-     * @return ArrayList - all inactive customers
-     */
-    public ArrayList<Customer> getInactiveCustomers() {
-        ArrayList<Customer> customers = new ArrayList<Customer>();
-        for (User u : users) {
-            if (!u.isAdmin() && !u.isActive()) {
-                customers.add((Customer) u);
-            }
-        }
-        return customers;
-    }
-
+	
 	/*
-	 * Gets all active customers sorted
-	 * @return ArrayList - all active customers
-	 */
-	public ArrayList<Customer> getSortedActiveCustomers() {
-		ArrayList<Customer> customers = new ArrayList<Customer>();
-		for (User u : users) {
-			if (!u.isAdmin() && u.isActive()) {
-				customers.add((Customer) u);
-			}
-		}
-		return customers;
-	}
-
-	/*
-	 * Gets all inactive customers sorted
+	 * Gets all customers 
 	 * @return ArrayList - all inactive customers
 	 */
-	public ArrayList<Customer> getSortedInactiveCustomers() {
-		ArrayList<Customer> customers = new ArrayList<Customer>();
-		for (User u : users) {
-			if (!u.isAdmin() && !u.isActive()) {
-				customers.add((Customer) u);
-			}
-		}
-		return customers;
+	public ArrayList<Customer> getCustomers() {
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+        for (User u : users) {
+            if (!u.isAdmin()) {
+                customers.add((Customer) u);
+            }
+        }
+        return customers;
 	}
 
     /*

@@ -3,8 +3,10 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /*
@@ -33,7 +35,7 @@ public class CustomerManagementScreen extends JFrame {
 
     private JButton search;
     private JButton sort;
-    private JTextField searchInput;
+    private JTextField searchSortInput;
     private JComboBox<String> sortOrderComboBox;
     private JComboBox<String> searchSortByComboBox;
 
@@ -97,7 +99,7 @@ public class CustomerManagementScreen extends JFrame {
         inactiveCustomersPane.addMouseListener(inactiveCustomersPaneListener);
 
         // create and write customers to panes
-        writeToDocs();
+        writeToDocs(userManager.getCustomers());
 
         // create activate and reactivate Buttons
         reactivate = new JButton("Reactivate");
@@ -134,18 +136,18 @@ public class CustomerManagementScreen extends JFrame {
         // create label and comboBox for search/sort by
         JLabel searchSortBy = new JLabel("Search/Sort By:");
         searchSortByComboBox = new JComboBox<String>();
-        searchSortByComboBox.addItem("First Name");
-        searchSortByComboBox.addItem("Last Name");
+        searchSortByComboBox.addItem("Name");
         searchSortByComboBox.addItem("Username");
         searchSortByComboBox.addItem("Email");
         searchSortByComboBox.setOpaque(false);
 
         // create label and textField for searching/sorting
         sort = new JButton("Sort");
-
-        searchInput = new JTextField();
-        searchInput.setPreferredSize(new Dimension(200, 25));
+        sort.addActionListener(new ButtonListener());
+        searchSortInput = new JTextField();
+        searchSortInput.setPreferredSize(new Dimension(200, 25));
         search = new JButton("Search");
+        search.addActionListener(new ButtonListener());
 
         // adding search/sort components to a panel
         JPanel searchSortPanel = new JPanel();
@@ -154,7 +156,7 @@ public class CustomerManagementScreen extends JFrame {
         searchSortPanel.add(searchSortBy);
         searchSortPanel.add(searchSortByComboBox);
         searchSortPanel.add(sort);
-        searchSortPanel.add(searchInput);
+        searchSortPanel.add(searchSortInput);
         searchSortPanel.add(search);
 
         inactive.setLayout(new BoxLayout(inactive, BoxLayout.Y_AXIS));
@@ -207,20 +209,19 @@ public class CustomerManagementScreen extends JFrame {
     /*
      * Writes all users to documents
      */
-    private void writeToDocs() {
-        activeUsersDoc = activeCustomersPane.getStyledDocument();
-        try {
-            activeUsersDoc.remove(0, activeUsersDoc.getLength());
-            inactiveUsersDoc = inactiveCustomersPane.getStyledDocument();
-            inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
-
-            for (Customer c : userManager.getSortedActiveCustomers()) {
-                activeUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
-            }
-
-            for (Customer c : userManager.getSortedInactiveCustomers()) {
-                inactiveUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
-            }
+    private void writeToDocs(ArrayList<Customer> customers) {
+    	activeUsersDoc = activeCustomersPane.getStyledDocument();
+    	inactiveUsersDoc = inactiveCustomersPane.getStyledDocument();
+    	try {
+    		activeUsersDoc.remove(0, activeUsersDoc.getLength());
+    		inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
+    		for (Customer c: customers) {
+    			if (c.isActive()) {
+                    activeUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
+    			} else if (!c.isActive()){
+                    inactiveUsersDoc.insertString(0, c.getFirstName() + " " + c.getLastName() + "\n", null);
+    			}
+    		}
         } catch (BadLocationException e) {
             throw new RuntimeException();
         }
@@ -318,7 +319,7 @@ public class CustomerManagementScreen extends JFrame {
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                writeToDocs();
+                writeToDocs(userManager.getCustomers());
             } else if (e.getSource() == inactivate) {
                 try {
                     if (!isActivePane) {
@@ -331,7 +332,7 @@ public class CustomerManagementScreen extends JFrame {
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                writeToDocs();
+                writeToDocs(userManager.getCustomers());
             } else if (e.getSource() == add) {
                 JPanel addUser = new JPanel();
                 JTextField firstName = new JTextField();
@@ -367,7 +368,7 @@ public class CustomerManagementScreen extends JFrame {
                 if (success == 0 && userTypeComboBox.getSelectedItem().equals("Customer")) {
                     userManager.addUser(new Customer(firstName.getText(), lastName.getText(), email.getText(),
                             firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
-                    writeToDocs();
+                    writeToDocs(userManager.getCustomers());
                 } else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
                     userManager.addUser(new Admin(firstName.getText(), lastName.getText(), email.getText(),
                             firstName.getText() + String.format("%04d", usernameNum), password.getText(), active.isSelected()));
@@ -421,13 +422,14 @@ public class CustomerManagementScreen extends JFrame {
                         userManager.remove(user);
                         userManager.addUser(new Customer(firstName.getText(), lastName.getText(), email.getText(),
                                 userName, password.getText(), active.isSelected()));
-                        writeToDocs();
+                        writeToDocs(userManager.getCustomers());
                     } else if (success == 0 && userTypeComboBox.getSelectedItem().equals("Admin")) {
                         userManager.remove(user);
                         userManager.addUser(new Admin(firstName.getText(), lastName.getText(), email.getText(),
                                 userName, password.getText(), active.isSelected()));
-                        writeToDocs();
+                        writeToDocs(userManager.getCustomers());
                     }
+                    resetAllDocStyling();
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -437,20 +439,22 @@ public class CustomerManagementScreen extends JFrame {
                     var success = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
                     if (success == 0) {
                         userManager.remove(user);
-                        writeToDocs();
+                        writeToDocs(userManager.getCustomers());
                     }
                     currentCursorEnd = -1;
+                    resetAllDocStyling();
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(CustomerManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else if (e.getSource() == sort || e.getSource() == search) {
-                sort.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        userManager.sortAll(sortOrderComboBox.getSelectedItem(), searchSortByComboBox.getSelectedItem(), searchInput.getText());
-                        writeToDocs();
-                    }
-                });
+            	System.out.println(sortOrderComboBox.getSelectedItem() + " " + searchSortByComboBox.getSelectedItem());
+            	User.setAsc(!sortOrderComboBox.getSelectedItem().equals("Ascending"));
+            	User.setSortBy((String)(searchSortByComboBox.getSelectedItem()));
+				ArrayList<Customer> result = (ArrayList<Customer>)userManager.getCustomers().stream()
+						.filter(m -> searchSortInput.getText().length() <= 0 || (m.getSearchBy()).contains(searchSortInput.getText()))
+						.sorted()
+						.collect(Collectors.toList());
+				writeToDocs(result);
             }
 
         }

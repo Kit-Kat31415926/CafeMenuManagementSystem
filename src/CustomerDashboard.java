@@ -296,7 +296,7 @@ public class CustomerDashboard extends JFrame {
         menuPane.setPreferredSize(new Dimension(500, 475));
         // List all menu items in document
         try {
-            menuDoc.insertString(0, formatMenu(menuManager.getMenu()), null);
+            menuDoc.insertString(0, formatMenu(menuManager.getActiveMenu()), null);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }

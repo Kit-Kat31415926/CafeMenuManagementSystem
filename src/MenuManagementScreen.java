@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 
+/*
+ * Creates screen to manage menu
+ * @author - Arianna Gonzalez
+ */
+
 public class MenuManagementScreen extends JFrame {
 
 	private MenuManager menuManager;
@@ -21,11 +26,15 @@ public class MenuManagementScreen extends JFrame {
 	private JTextPane activeMenuPane;
 	private StyledDocument backUpMenuDoc;
 	private StyledDocument activeMenuDoc;
-	private JComboBox<String> MenuTypeComboBox;
+	private JComboBox<String> sortOrderComboBox;
+	private JComboBox<String> menuItemTypeComboBox;
+	private JComboBox<String> searchSortByComboBox;
 	private JFrame parent;
 	
 	private JCheckBox breakfastCheckbox;
 	private JCheckBox dinnerCheckbox;
+	
+	private JTextField searchSortInput;
 	
 	// Buttons
 	private JButton logout;
@@ -53,31 +62,37 @@ public class MenuManagementScreen extends JFrame {
 		setResizable(false);
 		setLocationRelativeTo(parent);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
+		// Create meal checkboxes
+		JPanel mealTypePanel = new JPanel();
+		breakfastCheckbox = new JCheckBox("Breakfast");
+		breakfastCheckbox.setSelected(true);
+		breakfastCheckbox.addActionListener(new ButtonListener());
+		dinnerCheckbox = new JCheckBox("Dinner");
+		dinnerCheckbox.setSelected(true);
+		dinnerCheckbox.addActionListener(new ButtonListener());
+		mealTypePanel.add(breakfastCheckbox);
+		mealTypePanel.add(dinnerCheckbox);
+		
 		//create the name display and logout button at the top
 		JPanel topBar = new JPanel();
 		logout = new JButton("Logout");
 		logout.addActionListener(new ButtonListener());
 		JLabel name = new JLabel(currentUser.getFirstName() + " " + currentUser.getLastName() + " : " + currentUser.getUserName());
+		topBar.add(Box.createRigidArea(new Dimension(200, 0)));
+		topBar.add(breakfastCheckbox);
+		topBar.add(dinnerCheckbox);
+		topBar.add(Box.createRigidArea(new Dimension(300, 0)));
 		topBar.add(name);
 		topBar.add(logout);
 		
-		// Create meal checkboxes
-		JPanel mealTypePanel = new JPanel();
-		breakfastCheckbox = new JCheckBox("Breakfast");
-		dinnerCheckbox = new JCheckBox("Dinner");
-		mealTypePanel.add(breakfastCheckbox);
-		mealTypePanel.add(dinnerCheckbox);
+		
 
 		// create the labels for the customer panes
 		JPanel inactive = new JPanel();
 		JPanel active = new JPanel();
 		inactive.setLayout(new GridBagLayout());
 		active.setLayout(new GridBagLayout());
-		GridBagConstraints menugbc = new GridBagConstraints();
-		menugbc.fill = GridBagConstraints.VERTICAL;
-		menugbc.gridwidth = GridBagConstraints.REMAINDER;
-		menugbc.insets = new Insets(0, 0, 0, 0);
+
 		
 		JLabel inactiveLabel = new JLabel("Backup (Off-season) Menu:");
 		inactiveLabel.setFont(new Font(Font.SERIF, Font.BOLD, 24));
@@ -88,16 +103,23 @@ public class MenuManagementScreen extends JFrame {
 		// active customer textPane
 		this.activeMenuPane = new JTextPane();
 		activeMenuPane.setEditable(false);
+		activeMenuPane.setPreferredSize(new Dimension(300, 300));
+        activeMenuPane.setHighlighter(null);
+        activeMenuPane.setCaretColor(new Color(0, 0, 0, 0));
 		MouseClickListener activeCustomersPaneListener = new MouseClickListener();
 		activeMenuPane.addMouseListener(activeCustomersPaneListener);
+
 		// inactive customer textPane
 		this.backUpMenuPane = new JTextPane();
 		backUpMenuPane.setEditable(false);
+		backUpMenuPane.setPreferredSize(new Dimension(300, 300));
+        backUpMenuPane.setHighlighter(null);
+        backUpMenuPane.setCaretColor(new Color(0, 0, 0, 0));
 		MouseClickListener inactiveCustomersPaneListener = new MouseClickListener();
 		backUpMenuPane.addMouseListener(inactiveCustomersPaneListener);
 
 		// create and write customers to panes
-		writeToDocs();
+		writeToDocs(menuManager.getMenu());
 
 		// create activate and reactivate Buttons
 		reactivate = new JButton("Reactivate");
@@ -106,9 +128,9 @@ public class MenuManagementScreen extends JFrame {
 		inactivate.addActionListener(new ButtonListener());
 
 		// create combo Box for management pop-ups
-		MenuTypeComboBox = new JComboBox<String>();
-		MenuTypeComboBox.addItem("Dinner");
-		MenuTypeComboBox.addItem("Breakfast");
+		menuItemTypeComboBox = new JComboBox<String>();
+		menuItemTypeComboBox.addItem("Dinner");
+		menuItemTypeComboBox.addItem("Breakfast");
 
 		// create management buttons
 		add = new JButton("Add");
@@ -126,27 +148,27 @@ public class MenuManagementScreen extends JFrame {
 
 		//create label and comboBox for sort order
 		JLabel sortOrder = new JLabel("Sort Order:");
-		JComboBox<String> sortOrderComboBox = new JComboBox<String>();
+		sortOrderComboBox = new JComboBox<String>();
 		sortOrderComboBox.addItem("Ascending");
 		sortOrderComboBox.addItem("Decending");
 		sortOrderComboBox.setOpaque(false);
 
 		// create label and comboBox for search/sort by
 		JLabel searchSortBy = new JLabel("Search/Sort By:");
-		JComboBox<String> searchSortByComboBox = new JComboBox<String>();
+		searchSortByComboBox = new JComboBox<String>();
 		searchSortByComboBox.addItem("Title");
 		searchSortByComboBox.addItem("Description");
 		searchSortByComboBox.addItem("ItemID");
 		searchSortByComboBox.addItem("Price");
-		searchSortByComboBox.addItem("count");
 		searchSortByComboBox.setOpaque(false);
 
 		// create label and textField for searching/sorting
-		// TODO: implement sort and search button
-		JButton sort = new JButton("Sort");
-		JTextField searchInput = new JTextField();
-		searchInput.setPreferredSize(new Dimension(200, 25));
-		JButton search = new JButton("Search");
+		sort = new JButton("Sort");
+		sort.addActionListener(new ButtonListener());
+		searchSortInput = new JTextField();
+		searchSortInput.setPreferredSize(new Dimension(200, 25));
+		search = new JButton("Search");
+		search.addActionListener(new ButtonListener());
 
 		// adding search/sort components to a panel
 		JPanel searchSortPanel = new JPanel();
@@ -155,17 +177,17 @@ public class MenuManagementScreen extends JFrame {
 		searchSortPanel.add(searchSortBy);
 		searchSortPanel.add(searchSortByComboBox);
 		searchSortPanel.add(sort);
-		searchSortPanel.add(searchInput);
+		searchSortPanel.add(searchSortInput);
 		searchSortPanel.add(search);
 
 		inactive.setLayout(new BoxLayout(inactive, BoxLayout.Y_AXIS));
-		inactive.add(inactiveLabel);
-		inactive.add(backUpMenuPane, menugbc);
-		inactive.add(reactivate);
+        inactive.add(inactiveLabel);
+        inactive.add(backUpMenuPane);
+        inactive.add(reactivate);
 
 		active.setLayout(new BoxLayout(active, BoxLayout.Y_AXIS));
 		active.add(activeLabel);
-		active.add(activeMenuPane, menugbc);
+		active.add(activeMenuPane);
 		active.add(inactivate);
 
 		JPanel customersPanel = new JPanel();
@@ -179,7 +201,7 @@ public class MenuManagementScreen extends JFrame {
 		this.add(searchSortPanel);
 
 
-		// TODO: fix GUI, probably using GridBagLayout
+		// TODO: fix GUI
 		setVisible(true);
 	}
 
@@ -206,19 +228,20 @@ public class MenuManagementScreen extends JFrame {
 		}
 		return null;
 	}
-
-	private void writeToDocs() {
+	
+	private void writeToDocs(ArrayList<MenuItem> items) {
 		activeMenuDoc = activeMenuPane.getStyledDocument();
 		backUpMenuDoc = backUpMenuPane.getStyledDocument();
 		try {
 			activeMenuDoc.remove(0, activeMenuDoc.getLength());
 			backUpMenuDoc.remove(0, backUpMenuDoc.getLength());
-			for (MenuItem m : menuManager.getMenu()) {
-				System.out.println(m.getTitle() + " is available: " + m.isAvailable());
-				if (m.isAvailable()) {
-					activeMenuDoc.insertString(0, String.format("%-50s $%.2f",m.getTitle(), m.getPrice()) + "\n", null);
-				} else {
-					backUpMenuDoc.insertString(0, String.format("%-50s $%.2f",m.getTitle(), m.getPrice()) + "\n", null);
+			for (MenuItem m : items) {
+				if ((breakfastCheckbox.isSelected() && m instanceof PancakeMenuItem) || (dinnerCheckbox.isSelected() && m instanceof DinerMenuItem)){
+					if (m.isAvailable()) {
+						activeMenuDoc.insertString(0, String.format("%-50s $%.2f",m.getTitle(), m.getPrice()) + "\n", null);
+					} else if (!m.isAvailable()){
+						backUpMenuDoc.insertString(0, String.format("%-50s $%.2f",m.getTitle(), m.getPrice()) + "\n", null);
+					}
 				}
 			} 
 		} catch (BadLocationException e) {}
@@ -320,7 +343,7 @@ public class MenuManagementScreen extends JFrame {
 				} catch (NullPointerException ex) {
 					JOptionPane.showMessageDialog(MenuManagementScreen.this, "Please select a menu item.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
-				writeToDocs();
+				writeToDocs(menuManager.getMenu());
 			} else if (e.getSource() == inactivate) {
 				try {
 					MenuItem menuItem = menuManager.getItemByTitle(getSelectedItemTitle());
@@ -329,7 +352,7 @@ public class MenuManagementScreen extends JFrame {
 				} catch (NullPointerException ex) {
 					JOptionPane.showMessageDialog(MenuManagementScreen.this, "Please select a menu item.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
-				writeToDocs();
+				writeToDocs(menuManager.getMenu());
 			} else if (e.getSource() == add) {
 				JPanel addMenuItem = new JPanel();
 				JTextField title = new JTextField();
@@ -349,7 +372,7 @@ public class MenuManagementScreen extends JFrame {
 				status.add(offSeason);
 
 				addMenuItem.add(new JLabel("Menu Type:"));
-				addMenuItem.add(MenuTypeComboBox);
+				addMenuItem.add(menuItemTypeComboBox);
 				addMenuItem.add(new JLabel("Title:"));
 				addMenuItem.add(title);
 				addMenuItem.add(new JLabel("Description:"));
@@ -365,11 +388,11 @@ public class MenuManagementScreen extends JFrame {
 				addMenuItem.add(offSeason);
 
 				var success = JOptionPane.showConfirmDialog(null, addMenuItem, "Enter menu item details", JOptionPane.OK_CANCEL_OPTION);
-				if (success == 0 && MenuTypeComboBox.getSelectedItem().equals("Dinner")) {
+				if (success == 0 && menuItemTypeComboBox.getSelectedItem().equals("Dinner")) {
 					menuManager.add(new DinerMenuItem(title.getText(), itemID.getText(), description.getText(), 
 							Float.valueOf(price.getText()), Integer.valueOf(count.getText()), current.isSelected()));
-					writeToDocs();
-				} else if (success == 0 && MenuTypeComboBox.getSelectedItem().equals("Breakfast")) {
+					writeToDocs(menuManager.getMenu());
+				} else if (success == 0 && menuItemTypeComboBox.getSelectedItem().equals("Breakfast")) {
 					menuManager.add(new PancakeMenuItem(title.getText(), itemID.getText(), description.getText(), 
 							Float.valueOf(price.getText()), Integer.valueOf(count.getText()), current.isSelected()));
 				}
@@ -404,13 +427,13 @@ public class MenuManagementScreen extends JFrame {
 						offSeason.setSelected(true);
 					}
 					if(menuItem instanceof DinerMenuItem) {
-						MenuTypeComboBox.setSelectedIndex(0);
+						menuItemTypeComboBox.setSelectedIndex(0);
 					} else {
-						MenuTypeComboBox.setSelectedIndex(1);
+						menuItemTypeComboBox.setSelectedIndex(1);
 					}
 
 					editMenuItem.add(new JLabel("Menu Type:"));
-					editMenuItem.add(MenuTypeComboBox);
+					editMenuItem.add(menuItemTypeComboBox);
 					editMenuItem.add(new JLabel("Title:"));
 					editMenuItem.add(title);
 					editMenuItem.add(new JLabel("Description:"));
@@ -426,17 +449,17 @@ public class MenuManagementScreen extends JFrame {
 					editMenuItem.add(offSeason);
 
 					var success = JOptionPane.showConfirmDialog(null, editMenuItem, "Update Menu Item Details", JOptionPane.OK_CANCEL_OPTION);
-					if (success == 0 && MenuTypeComboBox.getSelectedItem().equals("Dinner")) {
+					if (success == 0 && menuItemTypeComboBox.getSelectedItem().equals("Dinner")) {
 						menuManager.remove(menuItem);
 						menuManager.add(new DinerMenuItem(title.getText(), itemID.getText(), description.getText(), 
 								Float.valueOf(price.getText()), Integer.valueOf(count.getText()), current.isSelected()));
-						writeToDocs();
-					} else if (success == 0 && MenuTypeComboBox.getSelectedItem().equals("Breakfast")) {
+						writeToDocs(menuManager.getMenu());
+					} else if (success == 0 && menuItemTypeComboBox.getSelectedItem().equals("Breakfast")) {
 						menuManager.remove(menuItem);
 						menuManager.add(new PancakeMenuItem(title.getText(), itemID.getText(), description.getText(), 
 								Float.valueOf(price.getText()), Integer.valueOf(count.getText()), current.isSelected()));
-						writeToDocs();
-					}
+						writeToDocs(menuManager.getMenu());
+					} 
 					resetAllDocStyling();
 				} catch (NullPointerException ex) {
 					JOptionPane.showMessageDialog(MenuManagementScreen.this, "Please select a menu item.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -444,15 +467,27 @@ public class MenuManagementScreen extends JFrame {
 			} else if (e.getSource() == delete) {
 				try {
 					MenuItem menuItem = menuManager.getItemByTitle(getSelectedItemTitle());
-					var success = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+					var success = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this menu item?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 					if (success == 0) {
 						menuManager.remove(menuItem);
-						writeToDocs();
+						writeToDocs(menuManager.getMenu());
 					}
 					currentCursorEnd = -1;
+					resetAllDocStyling();
 				} catch (NullPointerException ex) {
-					JOptionPane.showMessageDialog(MenuManagementScreen.this, "Please select a user.", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(MenuManagementScreen.this, "Please select a menu item.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
+			} else if (e.getSource() == breakfastCheckbox || e.getSource() == dinnerCheckbox) {
+				writeToDocs(menuManager.getMenu());
+			} else if (e.getSource() == search || e.getSource() == sort) {
+				System.out.println(sortOrderComboBox.getSelectedItem().toString());
+            	MenuItem.setAscending(!sortOrderComboBox.getSelectedItem().toString().equals("Ascending"));
+				MenuItem.setSortBy((String)(searchSortByComboBox.getSelectedItem()));
+				ArrayList<MenuItem> result = (ArrayList<MenuItem>)menuManager.getMenu().stream()
+						.filter(m -> searchSortInput.getText().length() <= 0 || (m.getSearchBy()).contains(searchSortInput.getText()))
+						.sorted()
+						.collect(Collectors.toList());
+				writeToDocs(result);
 			}
 
 		}

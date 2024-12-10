@@ -49,7 +49,7 @@ public class MenuManager {
                 }
             }
             scan.close();
-            menuItems = (ArrayList<MenuItem>) menuItems.stream().filter(MenuItem::isAvailable).collect(Collectors.toList());
+            //menuItems = (ArrayList<MenuItem>) menuItems.stream().filter(MenuItem::isAvailable).collect(Collectors.toList());
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -86,7 +86,10 @@ public class MenuManager {
     public boolean remove(MenuItem menuItem) {
     	return this.menuItems.remove(menuItem);
     }
-
+    
+    public ArrayList<MenuItem> getActiveMenu() {
+    	return (ArrayList<MenuItem>) menuItems.stream().filter(MenuItem::isAvailable).collect(Collectors.toList());
+    }
 
     /*
      * Returns string of updated menu after searching/sorting
@@ -127,4 +130,5 @@ public class MenuManager {
         }
         return updatedMenuItems;
     }
+
 }

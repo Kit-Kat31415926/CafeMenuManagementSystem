@@ -10,10 +10,11 @@ public abstract class User implements Comparable<User>, Serializable {
     private String password;
     private boolean isActive;
     private List<String> orderedItems;
+	private boolean ascending = true;
     private static final int MAX_ORDER_LIMIT = 10;
 
     private static boolean asc;
-    private static String sortBy;
+    private static String sortBy = "";
     private static String regex;
 
     public User(String firstName, String lastName, String email, String userName, String password, boolean isActive) {
@@ -114,5 +115,56 @@ public abstract class User implements Comparable<User>, Serializable {
     static Admin fromDataString(String data) {
         // Implement a basic structure, each subclass will have its own logic
         throw new UnsupportedOperationException("fromDataString() must be implemented in the subclass.");
+    }
+    
+    /*
+     * Compare method
+     * @param o - other menu item to compare with
+     */
+    @Override
+    public int compareTo(User o) {
+        if (sortBy.equals("Name")) {
+            if (ascending) {
+                if (this.getLastName().compareTo(o.getLastName()) == 0) {
+                	return this.getFirstName().compareTo(o.getFirstName());
+                } else {
+                	return this.getLastName().compareTo(o.getLastName());
+                }
+            } else {
+            	if (this.getLastName().compareTo(o.getLastName()) == 0) {
+                	return -1 * this.getFirstName().compareTo(o.getFirstName());
+                } else {
+                	return -1 * this.getLastName().compareTo(o.getLastName());
+                }
+            }
+        } else if (sortBy.equals("Username")) {
+            if (ascending) {
+                return (this.getUserName().compareTo(o.getUserName()));
+            } else {
+                return  - (this.getUserName().compareTo(o.getUserName()));
+            }
+        } else if (sortBy.equals("Email")) {
+            if (ascending) {
+                return (this.getEmail().compareTo(o.getEmail()));
+            } else {
+                return - (this.getEmail().compareTo(o.getEmail()));
+            }
+        }
+        return 0;
+    }
+
+    /*
+     * Gets value to search by
+     *  @return String - value to be searched by with regex
+     */
+    public String getSearchBy() {
+        if (sortBy.equals("Name")) {
+            return getFirstName() + " " + getLastName();
+        } else if (sortBy.equals("Username")) {
+            return getUserName();
+        } else if (sortBy.equals("Email")) {
+            return getEmail();
+        }
+        return  null;
     }
 }
